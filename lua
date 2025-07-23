@@ -198,7 +198,7 @@ local Window = Rayfield:CreateWindow({
 local Universeel = Window:CreateTab("Universeel", 4483362458) -- Title, Image
 
 local KnopUnviverseel1 = Universeel:CreateButton({
-    Name = "Universeel God Mode",
+    Name = "God Mode (Werkt niet in alle games en niet in de greenzone staan)",
     Callback = function()
 
 
@@ -231,7 +231,7 @@ local KnopUnviverseel1 = Universeel:CreateButton({
     frame.Parent = screenGui
 
     local textLabel = Instance.new("TextLabel")
-    textLabel.Text = "made by trex.gg ; ) apeldoorn is shitty"
+    textLabel.Text = "made by trex.gg ; ) " .. game.Name .. " is shitty"
     textLabel.Size = UDim2.new(0, 200, 0, 100)
     textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
     textLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -471,120 +471,6 @@ local KnopUniverseel6 = Universeel:CreateButton({
     loadstring(game:HttpGet(('https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source'), true))()
     end,
 })
-local KnopUniverseel7 = Universeel:CreateButton({
-    Name = "God Mode (Werkt niet in alle games en niet in de greenzone staan)",
-    Callback = function()
-    
-
-
-	local player = game.Players.LocalPlayer
-	local character = player.Character or player.CharacterAdded:Wait()
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	local rootPart = character:FindFirstChild("HumanoidRootPart")
-
-	if not humanoid or not rootPart then
-		warn("No Humanoid or HumanoidRootPart found!")
-		return
-	end
-
-	-- ✅ Show black screen immediately
-	local playerGui = player:WaitForChild("PlayerGui")
-	if playerGui:FindFirstChild("BlackScreen") then
-		playerGui.BlackScreen:Destroy()
-	end
-
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "BlackScreen"
-	screenGui.IgnoreGuiInset = true
-	screenGui.Enabled = true
-	screenGui.Parent = playerGui
-
-	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, 0, 1, 0)
-	frame.Position = UDim2.new(0, 0, 0, 0)
-	frame.BackgroundColor3 = Color3.new(0, 0, 0)
-	frame.Parent = screenGui
-
-	local textLabel = Instance.new("TextLabel")
-	textLabel.Text = "Aqua Menu #1 Cheat Menu"
-	textLabel.Size = UDim2.new(0, 200, 0, 100)
-	textLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-	textLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
-	textLabel.BackgroundTransparency = 1
-	textLabel.TextColor3 = Color3.new(1, 1, 1)
-	textLabel.TextScaled = true
-	textLabel.Font = Enum.Font.SourceSansBold
-	textLabel.Parent = frame
-
-	-- Remove black screen after 3 seconds
-
-
-	-- ✅ Save original position
-	local originalCFrame = rootPart.CFrame
-
-	-- ✅ Give God Mode
-	-- (No implementation provided, so skipping)
-
-	-- ✅ TP to Safe Zone (corrected name)
-	local safeZone = workspace:FindFirstChild("Safe Zone") or workspace:FindFirstChild("SafeZone") or workspace.Greenzones.Zone
-	if safeZone and safeZone:IsA("BasePart") then
-		character:PivotTo(safeZone.CFrame + Vector3.new(0, 5, 0))
-	else
-		warn("No SafeZone found in workspace!")
-		textLabel.Text = "Geen Safe Zone gevonden in de workspace!"
-	end
-
-	-- ✅ Wait a moment in Safe Zone
-	task.wait(2)
-
-	-- ✅ TP to Seat (try both seats if available)
-local seats = {}
-for _, obj in pairs(workspace:GetDescendants()) do
-    if obj:IsA("Seat") or obj:IsA("VehicleSeat") then
-        table.insert(seats, obj)
-        textLabel.Text = "Modules Gevonden: " .. tostring(#seats)
-    end
-end
-
-	local seated = false
-	for i, seat in seats do
-		if seat and seat:IsA("BasePart") then
-			local seatOffset = Vector3.new(0, seat.Size.Y/2 + humanoid.HipHeight, 0)
-			character:PivotTo(seat.CFrame + seatOffset)
-			task.wait(0.1)
-			humanoid.Sit = true
-			-- Check if humanoid is actually sitting in the seat
-			task.wait(0.2)
-			if humanoid.SeatPart == seat then
-				seated = true
-				break
-			end
-		end
-	end
-
-	if not seated then
-		warn("No available Modules found in workspace!")
-		textLabel.Text = "Geen beschikbare Module gevonden in de workspace!"
-	end
-
-	-- ✅ Wait a moment in Seat
-	task.wait(2)
-
-	-- ✅ TP back to original position
-	if character and character.Parent then
-		character:PivotTo(originalCFrame)
-		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        wait(1)
-        screenGui:Destroy()
-
-	end
-
-
-    -- made by trex.gg
-    print("made by trex.gg god mode universal")
-    end,
-})
-
 
 
 local ACS = Window:CreateTab("ACS 1.7.5", 4483362458) -- Title, Image
