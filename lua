@@ -1,3 +1,17 @@
+print("      /\\     /\\")
+print("     {  `---'  }")
+print("     {  O   O  }")
+print("     ~~>  V  <~~")
+print("      \\  \\|/  /")
+print("       `-----'____")
+print("       /     \\    \\_")
+print("      {       }\\  )_\\_   _")
+print("      |  \\_/  |/ /  \\_\\_/ )")
+print("       \\__/  /(_/     \\__/")
+print("         (__/             ")
+
+
+
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
