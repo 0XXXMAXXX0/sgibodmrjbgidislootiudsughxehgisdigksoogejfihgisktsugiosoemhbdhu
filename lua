@@ -839,6 +839,26 @@ end
     end,
 })
 
+local ApeldoornKnop5 = Apeldoorn:CreateButton({
+    Name = "Cuff Others",
+    Callback = function()
+local player = game.Players.LocalPlayer
+
+for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
+	if otherPlayer ~= player then
+		local args = {
+			otherPlayer.Name, -- dynamically use their name
+			"Arresteren"
+		}
+		game:GetService("ReplicatedStorage"):WaitForChild("Handcuffs"):FireServer(unpack(args))
+	end
+end
+
+    end,
+})
+
+
+
 local FiveR = Window:CreateTab("FiveR", 0) -- Title, Image
 local FiverKnop1 = FiveR:CreateButton({
     Name = "Twitter Spam",
