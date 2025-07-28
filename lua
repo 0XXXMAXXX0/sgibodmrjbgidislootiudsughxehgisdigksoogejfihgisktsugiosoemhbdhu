@@ -384,6 +384,9 @@ local s2Script = charModel and charModel:FindFirstChild("MedSys")
 local Slocks1 = charModel and charModel:FindFirstChild("AntiExploit")
 local Slocks2 = charModel and charModel:FindFirstChild("checkScript")
 local Slocksreal1 = charModel and charModel:FindFirstChild("MedSys")
+local lwd = charModel and charModel:FindFirstChild("64858389")
+local lwd2 = charModel and charModel:FindFirstChild("69325370")
+local lwd3 = charModel and charModel["[SCRIPTS]"].Walkspeed
 
 -- Safely get Apeldoorn scripts without errors
 local function safeFind(path)
@@ -431,6 +434,20 @@ if s1Script then
 elseif Slocks1 then
     Slocks1:Destroy()
     notifycorrect("Anti Cheat Bypasser", "Sloks Roleplay Nep Gedetecteerd Anti Cheats Verwijderd")
+    detectedSomething = true
+end
+
+if lwd or lwd2 or lwd3 then
+    if lwd then
+        lwd:Destroy()
+    end
+    if lwd2 then
+        lwd2:Destroy()
+    end
+    if lwd3 then
+        lwd3:Destroy()
+    end
+    notifycorrect("Anti Cheat Bypasser", "Leeuwarden Gedetecteerd Anti Cheats Verwijderd")
     detectedSomething = true
 end
 
@@ -824,22 +841,6 @@ end
 })
 local FiverKnop1 = FiveR:CreateButton({
     Name = "Noodknop Spam",
-    Callback = function()
-    local args = {
-	"dikke zwarte negertjes en fix jullie anti cheat"
-}
-while true do 
-game:GetService("ReplicatedStorage"):WaitForChild("TwitterPost"):FireServer(unpack(args))
-    wait(0.1)
-end
-
-    end,
-})
-
-local Leeuwarden = Window:CreateTab("Leeuwarden", 0) -- Title, Image
-
-local LeeuwardenKnop1 = Leeuwarden:CreateButton({
-    Name = "Soon",
     Callback = function()
     local args = {
 	"dikke zwarte negertjes en fix jullie anti cheat"
