@@ -885,7 +885,7 @@ local FiverKnop3 = FiveR:CreateButton({
 for _, obj in ipairs(workspace:GetDescendants()) do
     if obj:IsA("ProximityPrompt") and obj.Name == "Handboeienpromp" then
         pcall(function()
-            obj:Trigger()
+            fireproximityprompt(obj, 1, true) -- 1 = input hold duration, true = hold mode
         end)
     end
 end
