@@ -882,12 +882,29 @@ end
 local FiverKnop3 = FiveR:CreateButton({
     Name = "Cuff All",
     Callback = function()
-for _, obj in ipairs(workspace:GetDescendants()) do
-    if obj:IsA("ProximityPrompt") and obj.Name == "Handboeienpromp" then
-        pcall(function()
-            fireproximityprompt(obj, 1, true) -- 1 = input hold duration, true = hold mode
-        end)
-    end
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local char = lp.Character or lp.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+local originalCFrame = hrp.CFrame
+
+for _, player in ipairs(Players:GetPlayers()) do
+	if player ~= lp and player.Character then
+		local targetHRP = player.Character:FindFirstChild("HumanoidRootPart")
+		if targetHRP then
+			local prompt = targetHRP:FindFirstChild("Handboeienpromp")
+			if prompt and prompt:IsA("ProximityPrompt") then
+				pcall(function()
+					hrp.CFrame = targetHRP.CFrame + Vector3.new(0, 2, 0)
+					wait(0.1)
+					fireproximityprompt(prompt, 1, true)
+					wait(0.1)
+					hrp.CFrame = originalCFrame
+				end)
+			end
+		end
+	end
 end
 
     end,
