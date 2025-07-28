@@ -349,7 +349,8 @@ loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/m
 local KnopUnviverseel4 = Universeel:CreateButton({
     Name = "Anti Cheat Destroyer",
     Callback = function()
-
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua",true))()
+wait(0.5)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/0XXXMAXXX0/adonisremover/refs/heads/main/source"))()
 wait(0.5)
 local LocalPlayer = game.Players.LocalPlayer
