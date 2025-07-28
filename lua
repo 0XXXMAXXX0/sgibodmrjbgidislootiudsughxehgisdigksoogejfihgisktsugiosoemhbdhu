@@ -511,6 +511,13 @@ local KnopUnviverseel7 = Universeel:CreateButton({
     end,
 })
 
+local KnopUnviverseel8 = Universeel:CreateButton({
+    Name = "Aimbot (ESP met Infn Yield)",
+    Callback = function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Aimbot-V3/main/src/Aimbot.lua"))()()
+    end,
+})
+
 local ACS = Window:CreateTab("ACS 1.7.5", 4483362458) -- Title, Image
 
 local ACSKnop1 = ACS:CreateButton({
