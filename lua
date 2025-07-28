@@ -104,7 +104,7 @@ local function checkWhitelist()
     else
         print("❌ HWID not whitelisted. Response data:", data)
         game.Players.LocalPlayer:Kick("e hallo met trex.gg ja of je bent een dikke neger die mijn shit probeert te catchen maar boiiii dit is HWID whitelisting hahahahahah success met het deobfuscaten en btw je IP is doorgestuurd fijne dag (als je dit script al had dan sorry dan geld dit niet voor jou.)")
-        return false
+        return end
     end
 end
 
