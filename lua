@@ -438,25 +438,10 @@ elseif Slocks1 then
     detectedSomething = true
 end
 
-if lwd then
-    lwd:Destroy()
-    notifycorrect("Anti Cheat Bypasser", "LWD Gedetecteerd Anti Cheats Verwijderd")
-    detectedSomething = true  
-end
+if game.PlaceId == 4520619420 then 
 
-if lwd2 then
+    notifycorrect("Anti Cheat Bypasser", "Leeuwarden is tijdelijk offline ! Dus je kan bepaalde dingen niet doen ; ) ")
 
-        lwd2:Destroy()
-
-    notifycorrect("Anti Cheat Bypasser", "Leeuwarden Gedetecteerd Anti Cheats Verwijderd")
-    detectedSomething = true
-end
-if lwd3 then
-
-        lwd3:Destroy()
-
-    notifycorrect("Anti Cheat Bypasser", "Leeuwarden Gedetecteerd Anti Cheats Verwijderd")
-    detectedSomething = true
 end
 
 -- Check and remove Apeldoorn scripts
