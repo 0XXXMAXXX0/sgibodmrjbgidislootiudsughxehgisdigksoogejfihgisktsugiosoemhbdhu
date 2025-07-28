@@ -349,47 +349,45 @@ loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/m
 local KnopUnviverseel4 = Universeel:CreateButton({
     Name = "Anti Cheat Destroyer",
     Callback = function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua",true))()
+safeLoad("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua")
 wait(0.5)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/0XXXMAXXX0/adonisremover/refs/heads/main/source"))()
+safeLoad("https://raw.githubusercontent.com/0XXXMAXXX0/adonisremover/main/source")
 wait(0.5)
+
+-- Prevent being kicked
 local LocalPlayer = game.Players.LocalPlayer
+
 local oldhmmi
-    oldhmmi = hookmetamethod(game, "__index", function(self, method)
-        if self == LocalPlayer and method:lower() == "kick" then
-            return error("Expected ':' not '.' calling member function Kick", 2)
-        end
-        return oldhmmi(self, method)
-    end)
+oldhmmi = hookmetamethod(game, "__index", function(self, method)
+    if self == LocalPlayer and method:lower() == "kick" then
+        return function() warn("Kick attempt blocked (__index)") end
+    end
+    return oldhmmi(self, method)
+end)
+
 local oldhmmnc
-    oldhmmnc = hookmetamethod(game, "__namecall", function(self, ...)
-        if self == LocalPlayer and getnamecallmethod():lower() == "kick" then
-            return
-        end
-        return oldhmmnc(self, ...)
+oldhmmnc = hookmetamethod(game, "__namecall", function(self, ...)
+    local method = getnamecallmethod()
+    if self == LocalPlayer and method:lower() == "kick" then
+        return nil
+    end
+    return oldhmmnc(self, ...)
+end)
+
+-- Helper function to notify
+local function notify(title, text, iconId)
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = title,
+            Text = text,
+            Icon = "rbxassetid://" .. iconId,
+            Duration = 5,
+            Button1 = "OK"
+        })
     end)
+end
 
-local StarterGui = game:GetService("StarterGui")
-wait(0.5)
-local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
-local StarterPlayer = game:GetService("StarterPlayer")
-
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-
-local charModel = workspace:FindFirstChild(character.Name) or character
-
-local s1Script = charModel and charModel:FindFirstChild("ACS_Client")
-local s2Script = charModel and charModel:FindFirstChild("MedSys")
-local Slocks1 = charModel and charModel:FindFirstChild("AntiExploit")
-local Slocks2 = charModel and charModel:FindFirstChild("checkScript")
-local Slocksreal1 = charModel and charModel:FindFirstChild("MedSys")
-local lwd = charModel and charModel:FindFirstChild("64858389")
-local lwd2 = charModel and charModel:FindFirstChild("69325370")
-local lwd3 = charModel and charModel["[SCRIPTS]"].Walkspeed
-
--- Safely get Apeldoorn scripts without errors
+-- Safe child finder for deep paths
 local function safeFind(path)
     local current = path[1]
     for i = 2, #path do
@@ -402,91 +400,55 @@ local function safeFind(path)
     return current
 end
 
-local Apeldoorn2 = safeFind({StarterPlayer, "StarterPlayerScripts", "Assets", "Scripts", "AClient"})
-local Apeldoorn = safeFind({player, "PlayerScripts", "Assets", "Scripts", "AClient"})
+-- Begin detection/removal
+local Players = game:GetService("Players")
+local StarterPlayer = game:GetService("StarterPlayer")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local workspaceChar = workspace:FindFirstChild(character.Name) or character
 
-local function notifycorrect(title, text)
-    StarterGui:SetCore("SendNotification", {
-        Title = title,
-        Text = text,
-        Icon = "rbxassetid://505845268",
-        Duration = 5,
-        Button1 = "Is goed"
-    })
-end
+local scriptsToCheck = {
+    { workspaceChar, "ACS_Client", "FiveR/Emergency Amsterdam" },
+    { workspaceChar, "AntiExploit", "Sloks Roleplay (Fake)" },
+    { workspaceChar, "MedSys", "Sloks Roleplay (Real)" },
+    { workspaceChar, "checkScript", "checkScript" },
+    { workspaceChar, "[SCRIPTS]", "Leeuwarden" }, -- Walkspeed usually inside [SCRIPTS]
+    { workspaceChar, "64858389", "Leeuwarden" },
+    { workspaceChar, "69325370", "Leeuwarden" }
+}
 
-local function notifyincorrect(title, text)
-    StarterGui:SetCore("SendNotification", {
-        Title = title,
-        Text = text,
-        Icon = "rbxassetid://104917074710498",
-        Duration = 5,
-        Button1 = "Is goed"
-    })
-end
+local apeldoornPaths = {
+    { StarterPlayer, "StarterPlayerScripts", "Assets", "Scripts", "AClient" },
+    { player, "PlayerScripts", "Assets", "Scripts", "AClient" }
+}
 
 local detectedSomething = false
 
--- Check and remove s1Script or Slocks1
-if s1Script then
-    s1Script:Destroy()
-    notifycorrect("Anti Cheat Bypasser", "FiveR/Emergency Amsterdam Gedetecteerd Anti Cheats Verwijderd")
-    detectedSomething = true
-elseif Slocks1 then
-    Slocks1:Destroy()
-    notifycorrect("Anti Cheat Bypasser", "Sloks Roleplay Nep Gedetecteerd Anti Cheats Verwijderd")
-    detectedSomething = true
+-- Remove known exploit scripts
+for _, data in ipairs(scriptsToCheck) do
+    local parent, childName, label = unpack(data)
+    local target = parent and parent:FindFirstChild(childName)
+    if target then
+        target:Destroy()
+        notify("Anti-Cheat Bypasser", label .. " anti-cheat destroyed.", "505845268")
+        detectedSomething = true
+    end
 end
 
-if lwd or lwd2 or lwd3 then
-    if lwd then
-        lwd:Destroy()
+-- Remove Apeldoorn scripts
+for _, path in ipairs(apeldoornPaths) do
+    local found = safeFind(path)
+    if found then
+        found:Destroy()
+        notify("Anti-Cheat Bypasser", "Apeldoorn anti-cheat destroyed.", "505845268")
+        detectedSomething = true
     end
-    if lwd2 then
-        lwd2:Destroy()
-    end
-    if lwd3 then
-        lwd3:Destroy()
-    end
-    notifycorrect("Anti Cheat Bypasser", "Leeuwarden Gedetecteerd Anti Cheats Verwijderd")
-    detectedSomething = true
 end
 
--- Check and remove Apeldoorn scripts
-if Apeldoorn or Apeldoorn2 then
-    if Apeldoorn then
-        Apeldoorn:Destroy()
-    end
-    if Apeldoorn2 then
-        Apeldoorn2:Destroy()
-    end
-    notifycorrect("Anti Cheat Bypasser", "Apeldoorn Gedetecteerd Anti Cheats Verwijderd")
-    detectedSomething = true
-end
-
--- Check and remove Slocksreal1
-if Slocksreal1 then
-    Slocksreal1:Destroy()
-    notifycorrect("Anti Cheat Bypasser", "Sloks Roleplay Echt Gedetecteerd Anti Cheats Verwijderd")
-    detectedSomething = true
-end
-
--- Check and remove s2Script or Slocks2
-if s2Script then
-    s2Script:Destroy()
-    detectedSomething = true
-elseif Slocks2 then
-    Slocks2:Destroy()
-    detectedSomething = true
-else
-    warn("No MedSys or checkScript scripts found in character")
-end
-
+-- Final result
 if not detectedSomething then
-    notifyincorrect("Anti Cheat Bypasser", "Geen Anti-Cheat Gedetecteerd")
+    notify("Anti-Cheat Bypasser", "Geen anti-cheat gedetecteerd.", "104917074710498")
 end
-
-
     
     end,
 })
