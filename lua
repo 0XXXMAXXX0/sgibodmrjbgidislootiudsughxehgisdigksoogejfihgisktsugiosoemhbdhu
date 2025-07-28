@@ -880,7 +880,7 @@ end
 
     end,
 })
-local FiverKnop1 = FiveR:CreateButton({
+local FiverKnop2 = FiveR:CreateButton({
     Name = "Noodknop Spam",
     Callback = function()
     local args = {
@@ -894,7 +894,20 @@ end
     end,
 })
 
+local FiverKnop3 = FiveR:CreateButton({
+    Name = "Cuff All",
+    Callback = function()
+for _, v in ipairs(workspace:GetDescendants()) do
+    if v:IsA("ProximityPrompt") and v.Name == "Handboeienpromp" then
+        pcall(function()
+            fireproximityprompt(v, 1, true)
+        end)
+    end
+end
 
+
+    end,
+})
 
 local Leeuwarden = Window:CreateTab("Leeuwarden", 0) -- Title, Image
 local LeeuwardenKnop1 = Leeuwarden:CreateButton({
