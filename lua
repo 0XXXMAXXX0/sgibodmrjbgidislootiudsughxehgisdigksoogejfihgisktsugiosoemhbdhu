@@ -503,6 +503,12 @@ local KnopUniverseel6 = Universeel:CreateButton({
     end,
 })
 
+local KnopUnviverseel7 = Universeel:CreateButton({
+    Name = "Reload Script",
+    Callback = function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/0XXXMAXXX0/sgibodmrjbgidislootiudsughxehgisdigksoogejfihgisktsugiosoemhbdhu/refs/heads/main/lua"))()
+    end,
+})
 
 local ACS = Window:CreateTab("ACS 1.7.5", 4483362458) -- Title, Image
 
