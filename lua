@@ -1,4 +1,4 @@
-print("      /\\     /\\")
+
 print("     {  `---'  }")
 print("     {  O   O  }")
 print("     ~~>  V  <~~")
