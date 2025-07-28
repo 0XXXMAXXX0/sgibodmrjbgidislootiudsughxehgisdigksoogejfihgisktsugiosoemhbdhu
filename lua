@@ -387,7 +387,7 @@ local Slocks2 = charModel and charModel:FindFirstChild("checkScript")
 local Slocksreal1 = charModel and charModel:FindFirstChild("MedSys")
 local lwd = charModel and charModel:FindFirstChild("64858389")
 local lwd2 = charModel and charModel:FindFirstChild("69325370")
-local lwd3 = charModel and charModel["[SCRIPTS]"].Walkspeed
+local lwd3 = charModel and character:FindFirstChild("[SCRIPTS]") and character["[SCRIPTS]"].Walkspeed
 
 -- Safely get Apeldoorn scripts without errors
 local function safeFind(path)
