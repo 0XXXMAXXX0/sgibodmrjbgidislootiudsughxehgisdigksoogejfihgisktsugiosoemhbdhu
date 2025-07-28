@@ -864,8 +864,124 @@ end
 
 local Leeuwarden = Window:CreateTab("Leeuwarden", 0) -- Title, Image
 local LeeuwardenKnop1 = Leeuwarden:CreateButton({
-    Name = "Tests",
+    Name = "AutoFarm Materialen (Niet bewegen Niks doen gewoon wachten tot klaar)",
     Callback = function()
-   
+    local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local camera = workspace.CurrentCamera
+local stelenFolder = workspace:WaitForChild("Stelen")
+
+-- Create black screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BlackScreen"
+screenGui.ResetOnSpawn = false
+screenGui.Enabled = true
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local blackFrame = Instance.new("Frame")
+blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+blackFrame.Size = UDim2.new(1, 0, 1, 0)
+blackFrame.Position = UDim2.new(0, 0, 0, 0)
+blackFrame.Parent = screenGui
+
+local textLabel = Instance.new("TextLabel")
+textLabel.Text = "gemaakt door trex.gg tool farming bezig..."
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.BackgroundTransparency = 1
+textLabel.Size = UDim2.new(0.5, 0, 0, 50)
+textLabel.Position = UDim2.new(0.25, 0, 0.5, -25)
+textLabel.Font = Enum.Font.SourceSansBold
+textLabel.TextScaled = true
+textLabel.Parent = blackFrame
+
+spawn(function()
+    local texts = {
+        "gemaakt door trex.gg tool farming bezig...",
+        "gemaakt door trex.gg tool farming bezig..",
+        "gemaakt door trex.gg tool farming bezig."
+    }
+    local index = 1
+    while screenGui.Parent do
+        textLabel.Text = texts[index]
+        index = index % #texts + 1
+        wait(0.5)
+    end
+end)
+
+-- Lock camera to first person
+camera.CameraSubject = character:WaitForChild("Humanoid")
+camera.CameraType = Enum.CameraType.Custom
+player.CameraMode = Enum.CameraMode.LockFirstPerson
+
+local function tryPositionsUntilClaimed(prompt, hrp)
+    local part = prompt.Parent
+    local basePos = part.Position
+
+    local offsets = {
+        part.CFrame.LookVector * 3,
+        -part.CFrame.LookVector * 3,
+        part.CFrame.RightVector * 3,
+        -part.CFrame.RightVector * 3,
+    }
+
+    local claimed = false
+
+    while prompt.Enabled and not claimed do
+        for _, offset in ipairs(offsets) do
+            if not prompt.Enabled then
+                claimed = true
+                break
+            end
+
+            local tryPos = basePos + offset + Vector3.new(0, 3, 0)
+            character:MoveTo(tryPos)
+
+            local start = tick()
+            repeat
+                wait(0.1)
+                local dist = (hrp.Position - basePos).Magnitude
+                if dist < prompt.MaxActivationDistance then break end
+            until tick() - start > 1 or not prompt.Enabled
+
+            if not prompt.Enabled then
+                claimed = true
+                break
+            end
+
+            local spamStart = tick()
+            while prompt.Enabled and tick() - spamStart < 1 do
+                fireproximityprompt(prompt)
+                wait(0.1)
+            end
+
+            if not prompt.Enabled then
+                claimed = true
+                break
+            end
+
+            wait(0.2)
+        end
+    end
+end
+
+local hrp = character:WaitForChild("HumanoidRootPart")
+local originalPosition = hrp.Position -- store original position before farming
+
+for _, prompt in ipairs(stelenFolder:GetDescendants()) do
+    if prompt:IsA("ProximityPrompt") and prompt.Enabled then
+        tryPositionsUntilClaimed(prompt, hrp)
+    end
+end
+
+-- Teleport back to original position after farming is done
+character:MoveTo(originalPosition)
+
+-- Remove black screen GUI
+screenGui:Destroy()
+
+-- Unlock camera
+player.CameraMode = Enum.CameraMode.Classic
+
     end,
 })
