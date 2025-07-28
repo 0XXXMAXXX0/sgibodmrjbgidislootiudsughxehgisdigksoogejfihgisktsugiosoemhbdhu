@@ -897,10 +897,10 @@ end
 local FiverKnop3 = FiveR:CreateButton({
     Name = "Cuff All",
     Callback = function()
-for _, v in ipairs(workspace:GetDescendants()) do
-    if v:IsA("ProximityPrompt") and v.Name == "Handboeienpromp" then
+for _, prompt in ipairs(workspace:GetDescendants()) do
+    if prompt:IsA("ProximityPrompt") and prompt.Name == "Handboeienpromp" then
         pcall(function()
-            fireproximityprompt(v, 1, true)
+            prompt:Trigger()
         end)
     end
 end
