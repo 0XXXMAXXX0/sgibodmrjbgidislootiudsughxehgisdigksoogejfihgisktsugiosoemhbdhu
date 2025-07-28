@@ -10,6 +10,118 @@ print("      |  \\_/  |/ /  \\_\\_/ )")
 print("       \\__/  /(_/     \\__/")
 print("         (__/             ")
 
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Example HWID: Use ClientId as a fake fingerprint
+local function getHWID()
+    local success, hwid = pcall(function()
+        -- RbxAnalyticsService:GetClientId() is typically only available on the client
+        -- and might not be reliable for a server-side HWID.
+        -- For a more robust solution in a server context, you might need a different
+        -- identifier if this is a server script, or ensure this is indeed a client-side LocalScript.
+        return game:GetService("RbxAnalyticsService"):GetClientId()
+    end)
+    return success and hwid or "unknown"
+end
+
+-- --- Dynamic API URL Fetching ---
+-- IMPORTANT: Replace this with the raw GitHub URL where your *exact* API base URL is stored as plain text.
+-- For example: https://raw.githubusercontent.com/your-username/your-repo/main/api_url.txt
+-- The content of that text file should be ONLY: https://0c032d0a-f333-47d0-a0ea-bb09f144c550-00-ildxf6rsq1am.worf.replit.dev/
+local GITHUB_URL_SOURCE = "https://raw.githubusercontent.com/0XXXMAXXX0/APIWhitelist/refs/heads/main/sigma.txt" -- Corrected: Removed ..hwid
+local BASE_API_URL = "" -- This will store the URL fetched from GitHub
+
+local function fetchApiUrlFromGithub()
+    local success, response = pcall(function()
+        return game:HttpGet(GITHUB_URL_SOURCE)
+    end)
+
+    if success and response and string.len(response) > 0 then
+        -- Remove any leading/trailing whitespace like newlines
+        BASE_API_URL = response:gsub("^%s*(.-)%s*$", "%1")
+        print("✅ Fetched API URL from GitHub:", BASE_API_URL)
+        return true
+    else
+        warn("❌ Failed to fetch API URL from GitHub:", response or "Empty response")
+        print("Using fallback API URL (if available) or stopping script.")
+        -- Optionally, you could set a fallback URL here if fetching from GitHub fails
+        -- BASE_API_URL = "https://your-fallback-api-url.repl.co/"
+        return false
+    end
+end
+
+-- --- End Dynamic API URL Fetching ---
+
+-- Build request URL - now dynamically set
+local hwid = getHWID()
+local api_url = "" -- This will be constructed after fetching BASE_API_URL
+
+-- Whitelist check
+local function checkWhitelist()
+    -- Ensure BASE_API_URL is fetched before proceeding
+    if BASE_API_URL == "" then
+        print("❌ Base API URL not set. Cannot proceed with whitelist check.")
+        print("Unable to connect to verification server. Please try again.") 
+        return false
+    end
+
+    api_url = BASE_API_URL .. "verify?hwid=" .. hwid
+    print("Attempting to verify with API URL:", api_url)
+
+    local success, response = pcall(function()
+        return game:HttpGet(api_url)
+    end)
+
+    if not success then
+        warn("❌ API call failed:", response)
+        print("Unable to connect to verification server. Please try again.") 
+        return false
+    end
+
+    print("API Raw Response:", response)
+
+    if not response or string.len(response) == 0 then
+        warn("❌ API returned an empty response.")
+        print("Empty response from verification server.")
+        return false
+    end
+
+    local data_success, data = pcall(function()
+        return HttpService:JSONDecode(response)
+    end)
+
+    if not data_success then
+        warn("❌ Failed to parse JSON:", data)
+        print("Invalid response from verification server. Contact support.")
+        return false
+    end
+
+    if data and data.authorized then
+        print("✅ HWID verified. Running script...")
+        return true
+    else
+        print("❌ HWID not whitelisted. Response data:", data)
+        game.Players.LocalPlayer:Kick("e hallo met trex.gg ja of je bent een dikke neger die mijn shit probeert te catchen maar boiiii dit is HWID whitelisting hahahahahah success met het deobfuscaten en btw je IP is doorgestuurd fijne dag (als je dit script al had dan sorry dan geld dit niet voor jou.)")
+        return false
+    end
+end
+
+-- --- Script Execution Flow ---
+local api_url_fetched_successfully = fetchApiUrlFromGithub()
+
+if api_url_fetched_successfully then
+    if checkWhitelist() then
+        -- 🔥 Place your payload here:
+        print("Running secret code...")
+        print("hey")
+    else
+        print("Roblox script payload will not run.")
+    end
+else
+    print("Roblox script cannot proceed without a valid API URL.")
+end
 
 
 local HttpService = game:GetService("HttpService")
