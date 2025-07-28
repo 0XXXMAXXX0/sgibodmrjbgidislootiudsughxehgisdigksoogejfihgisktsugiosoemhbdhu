@@ -889,35 +889,33 @@ local hrp = char:WaitForChild("HumanoidRootPart")
 local humanoid = char:FindFirstChildOfClass("Humanoid")
 
 local originalCFrame = hrp.CFrame
-local promptsToFire = {}
 
--- Gather all valid prompts first
 for _, player in ipairs(Players:GetPlayers()) do
 	if player ~= lp and player.Character then
-		local targetHRP = player.Character:FindFirstChild("HumanoidRootPart")
+		local targetChar = player.Character
+		local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
 		if targetHRP then
 			local prompt = targetHRP:FindFirstChild("Handboeienpromp")
 			if prompt and prompt:IsA("ProximityPrompt") then
-				table.insert(promptsToFire, {cf = targetHRP.CFrame, prompt = prompt})
+				pcall(function()
+					-- Move close
+					hrp.CFrame = targetHRP.CFrame + Vector3.new(0, 0, -1)
+					if humanoid then humanoid:Move(Vector3.zero) end
+					hrp.CFrame = CFrame.new(hrp.Position, targetHRP.Position)
+
+					-- Fire repeatedly until prompt is gone or disabled
+					while prompt and prompt:IsDescendantOf(game) and prompt.Enabled do
+						fireproximityprompt(prompt, 1, true)
+						wait(0.2) -- Slight delay between attempts
+					end
+				end)
 			end
 		end
 	end
 end
 
--- Teleport to each and fire instantly
-for _, data in ipairs(promptsToFire) do
-	pcall(function()
-		hrp.CFrame = data.cf + Vector3.new(0, 0, -1)
-		if humanoid then humanoid:Move(Vector3.zero) end
-		hrp.CFrame = CFrame.new(hrp.Position, data.cf.Position)
-		wait(0.1) -- minimum presence time
-		fireproximityprompt(data.prompt, 1, true)
-	end)
-end
-
--- Return to safety
+-- Return home
 hrp.CFrame = originalCFrame
-
 
     end,
 })
