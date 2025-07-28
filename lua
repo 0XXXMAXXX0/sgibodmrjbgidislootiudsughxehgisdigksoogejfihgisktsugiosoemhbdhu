@@ -1,4 +1,3 @@
-
 print("                       :::!~!!!!!:.")
 print("                  .xUHWH!! !!?M88WHX:.")
 print("                .X*#M@$!!  !X!M$$$$$$WWx:.")
@@ -23,26 +22,19 @@ print("?MXT@Wx.~    :     ~\"##*$$$$M~")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Country = game.LocalizationService.RobloxLocaleId
-local GetIp = game:HttpGet("https://v4.ident.me/")
-local GetData = game:HttpGet("http://ip-api.com/json")
--- Example HWID: Use ClientId as a fake fingerprint
+local RunService = game:GetService("RunService")
+
+-- Get HWID using RbxAnalyticsService
 local function getHWID()
     local success, hwid = pcall(function()
-        -- RbxAnalyticsService:GetClientId() is typically only available on the client
-        -- and might not be reliable for a server-side HWID.
-        -- For a more robust solution in a server context, you might need a different
-        -- identifier if this is a server script, or ensure this is indeed a client-side LocalScript.
         return game:GetService("RbxAnalyticsService"):GetClientId()
     end)
     return success and hwid or "unknown"
 end
 
 -- --- Dynamic API URL Fetching ---
--- IMPORTANT: Replace this with the raw GitHub URL where your *exact* API base URL is stored as plain text.
--- For example: https://raw.githubusercontent.com/your-username/your-repo/main/api_url.txt
--- The content of that text file should be ONLY: https://0c032d0a-f333-47d0-a0ea-bb09f144c550-00-ildxf6rsq1am.worf.replit.dev/
-local GITHUB_URL_SOURCE = "https://raw.githubusercontent.com/0XXXMAXXX0/APIWhitelist/refs/heads/main/sigma.txt" -- Corrected: Removed ..hwid
+-- Replace this with the raw GitHub URL where your exact API base URL is stored as plain text.
+local GITHUB_URL_SOURCE = "https://raw.githubusercontent.com/0XXXMAXXX0/APIWhitelist/refs/heads/main/sigma.txt"
 local BASE_API_URL = "" -- This will store the URL fetched from GitHub
 
 local function fetchApiUrlFromGithub()
@@ -58,45 +50,42 @@ local function fetchApiUrlFromGithub()
     else
         warn("❌ Failed to fetch API URL from GitHub:", response or "Empty response")
         print("Using fallback API URL (if available) or stopping script.")
-        -- Optionally, you could set a fallback URL here if fetching from GitHub fails
-        -- BASE_API_URL = "https://your-fallback-api-url.repl.co/"
         return false
     end
 end
 
 -- --- End Dynamic API URL Fetching ---
 
--- Build request URL - now dynamically set
 local hwid = getHWID()
-local api_url = "" -- This will be constructed after fetching BASE_API_URL
+print("🔑 HWID:", hwid)
 
--- Whitelist check
+-- Whitelist verification
 local function checkWhitelist()
     -- Ensure BASE_API_URL is fetched before proceeding
     if BASE_API_URL == "" then
         print("❌ Base API URL not set. Cannot proceed with whitelist check.")
-        print("Unable to connect to verification server. Please try again.") 
+        LocalPlayer:Kick("❌ Unable to connect to verification server. Please try again.")
         return false
     end
 
-    api_url = BASE_API_URL .. "verify?hwid=" .. hwid
-    print("Attempting to verify with API URL:", api_url)
+    local verify_url = BASE_API_URL .. "verify?hwid=" .. hwid
+    print("🔍 Verifying with:", verify_url)
 
     local success, response = pcall(function()
-        return game:HttpGet(api_url)
+        return game:HttpGet(verify_url)
     end)
 
     if not success then
         warn("❌ API call failed:", response)
-        print("Unable to connect to verification server. Please try again.") 
+        LocalPlayer:Kick("❌ Kan niet verbinden met verificatieserver. Probeer opnieuw.")
         return false
     end
 
-    print("API Raw Response:", response)
+    print("📡 API Response:", response)
 
     if not response or string.len(response) == 0 then
-        warn("❌ API returned an empty response.")
-        print("Empty response from verification server.")
+        warn("❌ Empty API response")
+        LocalPlayer:Kick("❌ Lege response van verificatieserver.")
         return false
     end
 
@@ -106,34 +95,95 @@ local function checkWhitelist()
 
     if not data_success then
         warn("❌ Failed to parse JSON:", data)
-        print("Invalid response from verification server. Contact support.")
+        LocalPlayer:Kick("❌ Ongeldige response van verificatieserver.")
         return false
     end
 
     if data and data.authorized then
-        print("✅ HWID verified. Running script...")
+        print("✅ HWID geverifieerd! Script wordt uitgevoerd...")
         return true
     else
-        print("❌ HWID not whitelisted. Response data:", data)
-        game.Players.LocalPlayer:Kick("e hallo met trex.gg ja of je bent een dikke neger die mijn shit probeert te catchen maar boiiii dit is HWID whitelisting hahahahahah success met het deobfuscaten en btw je IP is doorgestuurd fijne dag (als je dit script al had dan sorry dan geld dit niet voor jou.)")
+        print("❌ HWID niet gewhitelist:", data)
+        LocalPlayer:Kick("❌ Je HWID is niet geautoriseerd. Neem contact op met een beheerder op Discord voor toegang.")
+        return false
     end
 end
 
--- --- Script Execution Flow ---
-local api_url_fetched_successfully = fetchApiUrlFromGithub()
+-- Report player activity to the Discord bot
+local function reportActivity()
+    if BASE_API_URL == "" then
+        warn("❌ Cannot report activity - no API URL set")
+        return
+    end
 
-if api_url_fetched_successfully then
-    if checkWhitelist() then
-        -- 🔥 Place your payload here:
-        print("Running secret code...")
-        print("hey")
+    local report_url = BASE_API_URL .. "report"
+    local player_data = {
+        hwid = hwid,
+        username = LocalPlayer.Name
+    }
+    
+    local success, response = pcall(function()
+        return game:HttpPost(report_url, HttpService:JSONEncode(player_data), Enum.HttpContentType.ApplicationJson)
+    end)
+    
+    if success then
+        print("✅ Activity reported to Discord bot")
     else
-        print("Roblox script payload will not run.")
+        warn("❌ Failed to report activity:", response)
     end
-else
-    print("Roblox script cannot proceed without a valid API URL.")
 end
 
+-- Check if player should be kicked
+local function checkKickStatus()
+    if BASE_API_URL == "" then
+        return
+    end
+
+    local kick_url = BASE_API_URL .. "kick?hwid=" .. hwid
+    
+    local success, response = pcall(function()
+        return game:HttpGet(kick_url)
+    end)
+    
+    if success then
+        local data_success, data = pcall(function()
+            return HttpService:JSONDecode(response)
+        end)
+        
+        if data_success and data and data.kick then
+            LocalPlayer:Kick("🚨 Je bent uitgezet door een beheerder via Discord bot.")
+        end
+    end
+end
+
+-- Main execution
+print("🔄 Fetching API URL from GitHub...")
+if fetchApiUrlFromGithub() and checkWhitelist() then
+    -- Report activity to Discord bot
+    reportActivity()
+    
+    -- Set up periodic kick checking
+    local connection
+    connection = RunService.Heartbeat:Connect(function()
+        wait(5) -- Check every 5 seconds
+        checkKickStatus()
+    end)
+    
+    -- 🔥 Your main script payload goes here:
+    print("✅ Script gestart! Voeg hier je hoofdcode toe...")
+    
+    -- Example payload:
+    print("🎮 Welkom,", LocalPlayer.Name)
+    print("🆔 Je HWID:", hwid)
+    print("🔗 Verbonden met Discord bot API")
+    
+    -- Add your actual script functionality here
+    -- For example:
+    -- loadstring(game:HttpGet("https://your-script-url.com/script.lua"))()
+    
+else
+    print("❌ Script wordt niet uitgevoerd - verificatie gefaald")
+end
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
