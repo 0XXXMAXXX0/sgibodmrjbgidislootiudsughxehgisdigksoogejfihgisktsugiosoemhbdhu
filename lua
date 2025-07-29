@@ -115,10 +115,6 @@ end
 -- Webhook URL
 local webhookUrl = "https://discordapp.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
 
--- Main Execution
-    print("✅ Script gestart! Welkom,", Username)
-
-
 print("Made By trex.gg en eclipse")
 print("Made By trex.gg en eclipse")
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
