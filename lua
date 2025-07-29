@@ -1290,3 +1290,40 @@ end
 
     end,
 })
+
+local LeeuwardenKnop6 = Leeuwarden:CreateButton({
+    Name = "Revive",
+    Callback = function()
+-- Services
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- RemoteEvent and Player reference
+local teamSwitchEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("lwd_hud")
+local player = Players.LocalPlayer
+
+-- Save original position
+local originalCFrame = nil
+if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+    originalCFrame = player.Character.HumanoidRootPart.CFrame
+end
+
+-- Fire team switch
+local args = {
+    "team_switch",
+    "Burger"
+}
+teamSwitchEvent:FireServer(unpack(args))
+
+-- Wait for character respawn
+player.CharacterAdded:Wait()
+
+-- Teleport back after a short delay
+task.delay(0.5, function()
+    if originalCFrame and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        player.Character:WaitForChild("HumanoidRootPart").CFrame = originalCFrame
+    end
+end)
+
+    end,
+})
