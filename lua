@@ -725,7 +725,7 @@ local ApeldoornKnop4 = Apeldoorn:CreateButton({
     Callback = function()
 local player = game.Players.LocalPlayer
 local playerGui = player.PlayerGui
-local part = workspace.Blackmarket.Part
+local part = workspace.Apeldoorn.Overig.OUD.Map.Blackmarket.Part
 if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 local screenGui = Instance.new("ScreenGui")
 	screenGui.Name = "BlackScreen"
