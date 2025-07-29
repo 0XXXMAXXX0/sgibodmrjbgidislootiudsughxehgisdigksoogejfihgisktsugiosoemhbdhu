@@ -1253,32 +1253,32 @@ local Tool = Character:WaitForChild("Mesje")
 local Remote = Tool:WaitForChild("RemoteEvent")
 local Humanoid = Character:WaitForChild("Humanoid")
 local HRP = Character:WaitForChild("HumanoidRootPart")
+local RightHand = Character:FindFirstChild("RightHand") or Character:FindFirstChild("Right Arm") -- R15 or R6
 
 for _, targetPlayer in pairs(Players:GetPlayers()) do
     if targetPlayer ~= LocalPlayer and targetPlayer.Character then
         local targetHumanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
         local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local forceField = targetPlayer.Character:FindFirstChildOfClass("ForceField")
 
-        if targetHumanoid and targetHRP then
+        if targetHumanoid and targetHRP and not forceField and RightHand then
             while targetHumanoid.Health > 0 do
-                -- Recheck existence every loop
                 if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
                     break
                 end
 
-                -- Teleport in front of the target, facing them
-                local offset = targetHRP.CFrame.LookVector * -3
-                local position = targetHRP.Position + offset
-                local facingCF = CFrame.new(position, targetHRP.Position)
+                -- Calculate offset between HRP and RightHand
+                local rightHandOffset = HRP.CFrame:ToObjectSpace(RightHand.CFrame)
 
-                HRP.CFrame = facingCF
+                -- Calculate the new CFrame for HRP so that RightHand aligns with targetHRP.Position
+                local newHRP_CFrame = CFrame.new(targetHRP.Position) * rightHandOffset:Inverse()
 
-                -- Only jump if sitting
+                HRP.CFrame = newHRP_CFrame
+
                 if Humanoid.Sit then
                     Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                 end
 
-                -- Fire weapon RemoteEvent
                 Remote:FireServer()
 
                 wait(0.1)
@@ -1286,6 +1286,7 @@ for _, targetPlayer in pairs(Players:GetPlayers()) do
         end
     end
 end
+
 
     end,
 })
