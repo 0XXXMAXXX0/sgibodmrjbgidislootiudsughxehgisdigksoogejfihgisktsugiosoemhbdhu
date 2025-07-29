@@ -1136,3 +1136,132 @@ end)
    Character:PivotTo(tppart.CFrame + Vector3.new(0, 0, 5))
     end,
 })
+local LeeuwardenKnop2 = Leeuwarden:CreateButton({
+    Name = "Teleporteer to Rob (Doorlaadsmechanischme)",
+    Callback = function()
+    local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local camera = workspace.CurrentCamera
+local stelenFolder = workspace:WaitForChild("Stelen")
+
+-- Create black screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BlackSjcreen"
+screenGui.ResetOnSpawn = false
+screenGui.Enabled = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local blackFrame = Instance.new("Frame")
+blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+blackFrame.Size = UDim2.new(1, 0, 1, 0)
+blackFrame.Position = UDim2.new(0, 0, 0, 0)
+blackFrame.Parent = screenGui
+
+local textLabel = Instance.new("TextLabel")
+textLabel.Text = "gemaakt door trex.gg tool farming bezig..."
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.BackgroundTransparency = 1
+textLabel.Size = UDim2.new(0.5, 0, 0, 50)
+textLabel.Position = UDim2.new(0.25, 0, 0.5, -25)
+textLabel.Font = Enum.Font.SourceSansBold
+textLabel.TextScaled = true
+textLabel.Parent = blackFrame
+
+spawn(function()
+    local texts = {
+        "gemaakt door trex.gg tool farming bezig...",
+        "gemaakt door trex.gg tool farming bezig..",
+        "gemaakt door trex.gg tool farming bezig."
+    }
+    local index = 1
+    while screenGui.Parent do
+        textLabel.Text = texts[index]
+        index = index % #texts + 1
+        wait(0.5)
+    end
+end)
+
+
+   local player = game.Players.LocalPlayer
+   local tppart = workspace.Dealers.Rob.HumanoidRootPart
+   local Character = player.Character
+   Character:PivotTo(tppart.CFrame + Vector3.new(0, 0, 5))
+    end,
+})
+local LeeuwardenKnop4 = Leeuwarden:CreateButton({
+    Name = "Teleporteer to Giel (Mesje)",
+    Callback = function()
+    local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local camera = workspace.CurrentCamera
+local stelenFolder = workspace:WaitForChild("Stelen")
+
+-- Create black screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BlackSjcreen"
+screenGui.ResetOnSpawn = false
+screenGui.Enabled = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local blackFrame = Instance.new("Frame")
+blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+blackFrame.Size = UDim2.new(1, 0, 1, 0)
+blackFrame.Position = UDim2.new(0, 0, 0, 0)
+blackFrame.Parent = screenGui
+
+local textLabel = Instance.new("TextLabel")
+textLabel.Text = "gemaakt door trex.gg tool farming bezig..."
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.BackgroundTransparency = 1
+textLabel.Size = UDim2.new(0.5, 0, 0, 50)
+textLabel.Position = UDim2.new(0.25, 0, 0.5, -25)
+textLabel.Font = Enum.Font.SourceSansBold
+textLabel.TextScaled = true
+textLabel.Parent = blackFrame
+
+spawn(function()
+    local texts = {
+        "gemaakt door trex.gg tool farming bezig...",
+        "gemaakt door trex.gg tool farming bezig..",
+        "gemaakt door trex.gg tool farming bezig."
+    }
+    local index = 1
+    while screenGui.Parent do
+        textLabel.Text = texts[index]
+        index = index % #texts + 1
+        wait(0.5)
+    end
+end)
+
+
+   local player = game.Players.LocalPlayer
+   local tppart = workspace.Dealers.Giel.Torso
+   local Character = player.Character
+   Character:PivotTo(tppart.CFrame + Vector3.new(0, 0, 5))
+    end,
+})
+local LeeuwardenKnop5 = Leeuwarden:CreateButton({
+    Name = "Kill all (Mesje nodig)",
+    Callback = function()
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local remote = game.Players.LocalPlayer.Character.Mesje.RemoteEvent
+
+while true do
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPos = player.Character.HumanoidRootPart.CFrame
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = targetPos + Vector3.new(0, 3, 0)
+                remote:FireServer()
+                wait(0.1)
+            end
+        end
+    end
+    wait(0.5)
+end
+
+    end,
+})
