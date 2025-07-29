@@ -1247,20 +1247,32 @@ local LeeuwardenKnop5 = Leeuwarden:CreateButton({
     Callback = function()
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local remote = game.Players.LocalPlayer.Character.Mesje.RemoteEvent
+local remote = LocalPlayer.Character.Mesje.RemoteEvent
 
-while true do
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local targetPos = player.Character.HumanoidRootPart.CFrame
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = targetPos + Vector3.new(0, 3, 0)
-                remote:FireServer()
-                wait(0.1)
+local function getHumanoid(player)
+    return player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+end
+
+for _, targetPlayer in pairs(Players:GetPlayers()) do
+    if targetPlayer ~= LocalPlayer then
+        local humanoid = getHumanoid(targetPlayer)
+        if humanoid then
+            while humanoid.Health > 0 do
+                if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local targetPos = targetPlayer.Character.HumanoidRootPart.CFrame
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = targetPos + Vector3.new(0, 3, 0)
+                        local localHumanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                        if localHumanoid then
+                            localHumanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                        end
+                        remote:FireServer()
+                        wait(0.1)
+                    end
+                end
             end
         end
     end
-    wait(0.5)
 end
 
     end,
