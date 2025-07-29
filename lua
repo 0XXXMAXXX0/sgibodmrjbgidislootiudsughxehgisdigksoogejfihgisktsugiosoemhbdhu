@@ -818,19 +818,13 @@ local FiverKnop3 = FiveR:CreateButton({
     Callback = function()
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
-local char = lp.Character or lp.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
-local humanoid = char:FindFirstChildOfClass("Humanoid")
-	local chr = plr.Character or plr.CharacterAdded:Wait()
-	local hum = chr:WaitForChild("Humanoid")
-local originalCFrame = hrp.CFrame
+local userInputService = game:GetService("UserInputService")
 
--- Create black screen GUI
+-- Black screen UI setup
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "BlackScreen"
-screenGui.ResetOnSpawn = false
-screenGui.Enabled = true
 screenGui.IgnoreGuiInset = true
+screenGui.Enabled = true
 screenGui.Parent = lp:WaitForChild("PlayerGui")
 
 local blackFrame = Instance.new("Frame")
@@ -840,7 +834,7 @@ blackFrame.Position = UDim2.new(0, 0, 0, 0)
 blackFrame.Parent = screenGui
 
 local textLabel = Instance.new("TextLabel")
-textLabel.Text = "gemaakt door trex.gg iedereen aan het cuffen (ligt aan mods maar je kan missschien gekickt worden.)"
+textLabel.Text = "Gemaakt door trex.gg - aan het cuffen 🔒 (kick kans bestaat)"
 textLabel.TextColor3 = Color3.new(1, 1, 1)
 textLabel.BackgroundTransparency = 1
 textLabel.Size = UDim2.new(0.5, 0, 0, 50)
@@ -849,44 +843,75 @@ textLabel.Font = Enum.Font.SourceSansBold
 textLabel.TextScaled = true
 textLabel.Parent = blackFrame
 
--- Function to remove the black screen after the process
-local function removeBlackScreen()
-    screenGui:Destroy()
+-- Simulated "E" key press (performing action instead of just checking)
+local function spamE()
+    while userInputService:IsKeyDown(Enum.KeyCode.E) do
+        print("E key is being held down.")
+        wait(0.1)
+    end
 end
 
--- Perform the proximity prompt firing logic
+-- Start the exploit-like behavior
+screenGui.Enabled = true
+
+local char = lp.Character or lp.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+local humanoid = char:FindFirstChildOfClass("Humanoid")
+local originalCFrame = hrp.CFrame
+
+-- Make sure player isn't sitting
+local function keepCheckingForSit()
+    while true do
+        local char = lp.Character or lp.CharacterAdded:Wait()
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+
+        if humanoid and humanoid.Sit then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+
+        wait(0.1)
+    end
+end
+
+-- Start monitoring sit state in a separate thread
+task.spawn(keepCheckingForSit)
+
+-- Initial E spam
+spawn(spamE)
+
 for _, player in ipairs(Players:GetPlayers()) do
     if player ~= lp and player.Character then
-        local targetChar = player.Character
-        local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
-        if targetHRP then
-            local prompt = targetHRP:FindFirstChild("Handboeienpromp")
-            if prompt and prompt:IsA("ProximityPrompt") then
-                pcall(function()
-                    -- Move close to the target
-                    hrp.CFrame = targetHRP.CFrame + Vector3.new(0, 0, -1)
-                    if humanoid then humanoid:Move(Vector3.zero) end
-                    hrp.CFrame = CFrame.new(hrp.Position, targetHRP.Position)
+        local targetHRP = player.Character:FindFirstChild("HumanoidRootPart")
+        local prompt = targetHRP and targetHRP:FindFirstChild("Handboeienpromp")
 
-                    -- Fire repeatedly until prompt is gone or disabled
-                    while prompt and prompt:IsDescendantOf(game) and prompt.Enabled do
-                        fireproximityprompt(prompt, 1, true)
-							local plr = game:GetService("Players").LocalPlayer
-		hum:ChangeState(Enum.HumanoidStateType.Jumping) -- you can do hum:ChangeState(3) too
-	
-                        wait(0.5) -- Slight delay between attempts
-                    end
-                end)
-            end
+        if prompt and prompt:IsA("ProximityPrompt") then
+            prompt.Enabled = true
+            prompt.MaxActivationDistance = 9999999999
+            prompt.HoldDuration = 0
+
+            pcall(function()
+                -- Teleport close to target and face them
+                char:PivotTo(CFrame.new(targetHRP.Position + Vector3.new(0, 0, -1), targetHRP.Position))
+                task.wait(0.5)
+
+                -- Loop until prompt is disabled or destroyed (assumed cuffed)
+                    fireproximityprompt(prompt, 1, true)
+                    wait(0.1)
+
+            end)
+
+            task.wait(0.25)
         end
     end
 end
 
--- Return to original position
-hrp.CFrame = originalCFrame
+-- Return to original location
+task.wait(0.25)
+char:PivotTo(originalCFrame)
 
--- Remove the black screen once the task is complete
-removeBlackScreen()
+-- Remove UI overlay
+screenGui:Destroy()
+
 
     end,
 })
