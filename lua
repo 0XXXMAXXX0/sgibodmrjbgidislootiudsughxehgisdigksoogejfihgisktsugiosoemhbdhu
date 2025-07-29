@@ -1256,19 +1256,37 @@ end
 for _, targetPlayer in pairs(Players:GetPlayers()) do
     if targetPlayer ~= LocalPlayer then
         local humanoid = getHumanoid(targetPlayer)
+        
+        -- Only proceed if the target has a character and humanoid
         if humanoid then
-            while humanoid.Health > 0 do
+            -- Loop until the target is dead (Health == 0)
+            while humanoid and humanoid.Health > 0 do
                 if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetPos = targetPlayer.Character.HumanoidRootPart.CFrame
+                    local targetHRP = targetPlayer.Character.HumanoidRootPart
+
                     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = targetPos + Vector3.new(0, 3, 0)
-                        local localHumanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                        if localHumanoid then
-                            localHumanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                        local localHRP = LocalPlayer.Character.HumanoidRootPart
+
+                        -- Teleport 3 studs in front of the target and face them
+                        local offset = targetHRP.CFrame.LookVector * -3
+                        local position = targetHRP.Position + offset
+                        local facingCF = CFrame.new(position, targetHRP.Position)
+
+                        localHRP.CFrame = facingCF
+
+                        -- Make the exploiter jump (simulating legit movement)
+                        local myHumanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                        if myHumanoid then
+                            myHumanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                         end
+
+                        -- Fire damage remote
                         remote:FireServer()
+
                         wait(0.1)
                     end
+                else
+                    break -- Target character is missing (e.g., reset or left)
                 end
             end
         end
