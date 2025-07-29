@@ -837,35 +837,72 @@ local lp = Players.LocalPlayer
 local char = lp.Character or lp.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 local humanoid = char:FindFirstChildOfClass("Humanoid")
-
+	local chr = plr.Character or plr.CharacterAdded:Wait()
+	local hum = chr:WaitForChild("Humanoid")
 local originalCFrame = hrp.CFrame
 
-for _, player in ipairs(Players:GetPlayers()) do
-	if player ~= lp and player.Character then
-		local targetChar = player.Character
-		local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
-		if targetHRP then
-			local prompt = targetHRP:FindFirstChild("Handboeienpromp")
-			if prompt and prompt:IsA("ProximityPrompt") then
-				pcall(function()
-					-- Move close
-					hrp.CFrame = targetHRP.CFrame + Vector3.new(0, 0, -1)
-					if humanoid then humanoid:Move(Vector3.zero) end
-					hrp.CFrame = CFrame.new(hrp.Position, targetHRP.Position)
+-- Create black screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BlackScreen"
+screenGui.ResetOnSpawn = false
+screenGui.Enabled = true
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = lp:WaitForChild("PlayerGui")
 
-					-- Fire repeatedly until prompt is gone or disabled
-					while prompt and prompt:IsDescendantOf(game) and prompt.Enabled do
-						fireproximityprompt(prompt, 1, true)
-						wait(0.2) -- Slight delay between attempts
-					end
-				end)
-			end
-		end
-	end
+local blackFrame = Instance.new("Frame")
+blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+blackFrame.Size = UDim2.new(1, 0, 1, 0)
+blackFrame.Position = UDim2.new(0, 0, 0, 0)
+blackFrame.Parent = screenGui
+
+local textLabel = Instance.new("TextLabel")
+textLabel.Text = "gemaakt door trex.gg iedereen aan het cuffen (ligt aan mods maar je kan missschien gekickt worden.)"
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.BackgroundTransparency = 1
+textLabel.Size = UDim2.new(0.5, 0, 0, 50)
+textLabel.Position = UDim2.new(0.25, 0, 0.5, -25)
+textLabel.Font = Enum.Font.SourceSansBold
+textLabel.TextScaled = true
+textLabel.Parent = blackFrame
+
+-- Function to remove the black screen after the process
+local function removeBlackScreen()
+    screenGui:Destroy()
 end
 
--- Return home
+-- Perform the proximity prompt firing logic
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= lp and player.Character then
+        local targetChar = player.Character
+        local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
+        if targetHRP then
+            local prompt = targetHRP:FindFirstChild("Handboeienpromp")
+            if prompt and prompt:IsA("ProximityPrompt") then
+                pcall(function()
+                    -- Move close to the target
+                    hrp.CFrame = targetHRP.CFrame + Vector3.new(0, 0, -1)
+                    if humanoid then humanoid:Move(Vector3.zero) end
+                    hrp.CFrame = CFrame.new(hrp.Position, targetHRP.Position)
+
+                    -- Fire repeatedly until prompt is gone or disabled
+                    while prompt and prompt:IsDescendantOf(game) and prompt.Enabled do
+                        fireproximityprompt(prompt, 1, true)
+							local plr = game:GetService("Players").LocalPlayer
+		hum:ChangeState(Enum.HumanoidStateType.Jumping) -- you can do hum:ChangeState(3) too
+	
+                        wait(0.5) -- Slight delay between attempts
+                    end
+                end)
+            end
+        end
+    end
+end
+
+-- Return to original position
 hrp.CFrame = originalCFrame
+
+-- Remove the black screen once the task is complete
+removeBlackScreen()
 
     end,
 })
