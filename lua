@@ -1247,47 +1247,41 @@ local LeeuwardenKnop5 = Leeuwarden:CreateButton({
     Callback = function()
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local remote = LocalPlayer.Character.Mesje.RemoteEvent
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 
-local function getHumanoid(player)
-    return player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-end
+local Tool = Character:WaitForChild("Mesje")
+local Remote = Tool:WaitForChild("RemoteEvent")
+local Humanoid = Character:WaitForChild("Humanoid")
+local HRP = Character:WaitForChild("HumanoidRootPart")
 
 for _, targetPlayer in pairs(Players:GetPlayers()) do
-    if targetPlayer ~= LocalPlayer then
-        local humanoid = getHumanoid(targetPlayer)
-        
-        -- Only proceed if the target has a character and humanoid
-        if humanoid then
-            -- Loop until the target is dead (Health == 0)
-            while humanoid and humanoid.Health > 0 do
-                if targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetHRP = targetPlayer.Character.HumanoidRootPart
+    if targetPlayer ~= LocalPlayer and targetPlayer.Character then
+        local targetHumanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+        local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
 
-                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local localHRP = LocalPlayer.Character.HumanoidRootPart
-
-                        -- Teleport 3 studs in front of the target and face them
-                        local offset = targetHRP.CFrame.LookVector * -3
-                        local position = targetHRP.Position + offset
-                        local facingCF = CFrame.new(position, targetHRP.Position)
-
-                        localHRP.CFrame = facingCF
-
-                        -- Make the exploiter jump (simulating legit movement)
-                        local myHumanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                        if myHumanoid then
-                            myHumanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                        end
-
-                        -- Fire damage remote
-                        remote:FireServer()
-
-                        wait(0.1)
-                    end
-                else
-                    break -- Target character is missing (e.g., reset or left)
+        if targetHumanoid and targetHRP then
+            while targetHumanoid.Health > 0 do
+                -- Recheck existence every loop
+                if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    break
                 end
+
+                -- Teleport in front of the target, facing them
+                local offset = targetHRP.CFrame.LookVector * -3
+                local position = targetHRP.Position + offset
+                local facingCF = CFrame.new(position, targetHRP.Position)
+
+                HRP.CFrame = facingCF
+
+                -- Only jump if sitting
+                if Humanoid.Sit then
+                    Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+
+                -- Fire weapon RemoteEvent
+                Remote:FireServer()
+
+                wait(0.1)
             end
         end
     end
