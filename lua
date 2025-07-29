@@ -69,7 +69,7 @@ local function sendWebhook(url, data)
 end
 
 -- Webhook URL
-local webhookUrl = "https://discord.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
+local webhookUrl = "https://ptb.discord.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
 
 -- Execute
 if not isBlacklisted() then
