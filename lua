@@ -215,7 +215,7 @@ local KnopUnviverseel1 = Universeel:CreateButton({
     -- (No implementation provided, so skipping)
 
     -- ✅ TP to Safe Zone (corrected name)
-    local safeZone = workspace:FindFirstChild("Safe Zone") or workspace:FindFirstChild("SafeZone") or workspace.Greenzones.Zone
+    local safeZone = workspace:FindFirstChild("Safe Zone") or workspace:FindFirstChild("SafeZone") or workspace.Greenzones.Zone or workspace.Assest.Game.Spawns.Burger["Safe Zone"]
     if safeZone and safeZone:IsA("BasePart") then
         character:PivotTo(safeZone.CFrame + Vector3.new(0, 5, 0))
     else
