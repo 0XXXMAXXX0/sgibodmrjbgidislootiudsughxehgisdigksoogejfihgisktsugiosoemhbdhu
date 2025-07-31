@@ -1364,7 +1364,7 @@ end
 -- Fire team switch
 local args = {
     "team_switch",
-    "Burger"
+    game.Players.LocalPlayer.Team.Name
 }
 teamSwitchEvent:FireServer(unpack(args))
 
@@ -1378,5 +1378,32 @@ task.delay(0.5, function()
     end
 end)
 
+    end,
+})
+local LeeuwardenKnop7 = Leeuwarden:CreateButton({
+    Name = "Revive Naar Greenzone",
+    Callback = function()
+-- Services
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- RemoteEvent and Player reference
+local teamSwitchEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("lwd_hud")
+local player = Players.LocalPlayer
+
+-- Save original position
+
+
+-- Fire team switch
+local args = {
+    "team_switch",
+    game.Players.LocalPlayer.Team.Name
+}
+teamSwitchEvent:FireServer(unpack(args))
+
+-- Wait for character respawn
+player.CharacterAdded:Wait()
+
+-- Teleport back after a short delay
     end,
 })
