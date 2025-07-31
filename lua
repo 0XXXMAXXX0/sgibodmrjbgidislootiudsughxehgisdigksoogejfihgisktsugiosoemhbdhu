@@ -916,6 +916,22 @@ screenGui:Destroy()
     end,
 })
 
+local FiverKnop4 = FiveR:CreateButton({
+    Name = "Assistentie Spam",
+    Callback = function()
+local args = {
+	" Heeft assestentie nodig bij negersplein 101 fix je kanker anti cheat dikke kanker negers NigeriaExploit on TOP"
+}
+
+while true do 
+game:GetService("ReplicatedStorage"):WaitForChild("FiveRadio"):WaitForChild("SnelleActieRemote"):FireServer(unpack(args))
+wait(0.1)
+end
+
+    end,
+})
+
+
 local Leeuwarden = Window:CreateTab("Leeuwarden", 0) -- Title, Image
 local LeeuwardenKnop1 = Leeuwarden:CreateButton({
     Name = "AutoFarm Materialen (Niet bewegen Niks doen gewoon wachten tot klaar)",
