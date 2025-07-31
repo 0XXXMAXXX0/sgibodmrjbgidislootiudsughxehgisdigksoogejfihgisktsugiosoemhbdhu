@@ -279,12 +279,53 @@ loadstring(game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/m
     
     end,
 })
+local KnopUnviverseel4 = Universeel:CreateButton({
+    Name = "Adonis Bypasser",
+    Callback = function()
+
+local StarterGui = game:GetService("StarterGui")
+
+-- Backup original metatable
+local mt = getrawmetatable(StarterGui)
+setreadonly(mt, false)
+local oldNamecall = mt.__namecall
+
+-- Create the hook
+mt.__namecall = newcclosure(function(self, ...)
+	local method = getnamecallmethod()
+	if self == StarterGui and method == "SetCore" then
+		local args = { ... }
+		if args[1] == "SendNotification" then
+			-- Block notification
+			return
+		end
+	end
+	return oldNamecall(self, ...)
+end)
+
+-- Load whatever script you want (this is where you'd place exploit or payload)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua", true))()
+
+-- Restore after 1 second and send notification
+task.delay(1, function()
+	mt.__namecall = oldNamecall
+	setreadonly(mt, true)
+
+	-- Now send the custom notification
+	StarterGui:SetCore("SendNotification", {
+		Title = "ADONIS BYPASSED ",
+		Text = "gemaakt door trex.gg ;)",
+		Duration = 5
+	})
+end)
+
+    
+    end,
+})
 
 local KnopUnviverseel4 = Universeel:CreateButton({
     Name = "Anti Cheat Destroyer",
     Callback = function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua",true))()
-wait(0.5)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/0XXXMAXXX0/adonisremover/refs/heads/main/source"))()
 wait(0.5)
 local LocalPlayer = game.Players.LocalPlayer
