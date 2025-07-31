@@ -307,19 +307,6 @@ end)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua", true))()
 
 -- Restore after 1 second and send notification
-task.delay(1, function()
-	mt.__namecall = oldNamecall
-	setreadonly(mt, true)
-
-	-- Now send the custom notification
-	StarterGui:SetCore("SendNotification", {
-		Title = "ADONIS BYPASSED ",
-		Text = "gemaakt door trex.gg ;)",
-		Duration = 5
-	})
-end)
-
-    
     end,
 })
 
